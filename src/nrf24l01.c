@@ -24,64 +24,19 @@
  * nrf24l01.c: nRF24L01(-p) PRX mode low level driver
  */
 
-/* TODO:
- *  - Separate the SPI and GPIO driver from here.
- *  - Handle PTX mode
- */
-
+#include "config.h"
 #include "nrf24l01.h"
-
-#include <stdbool.h>
-#include <string.h>
-
-//#include "cfassert.h"
 
 #include "stm32f0xx_conf.h"
 #include "stm32f0xx_rcc.h"
 #include "stm32f0xx_spi.h"
 #include "stm32f0xx_exti.h"
 
-//#include "exti.h"
-
-#include "nRF24L01reg.h"
-
-/* Defines for the SPI and GPIO pins used to drive the SPI Flash */
-
-// CX-10 RED CS is PA4 (NSS)
-
-// STM32F051 has only one SPI peripheral
-#define RADIO_GPIO_SPI_CS         GPIO_Pin_4
-#define RADIO_GPIO_SPI_SCK        GPIO_Pin_5
-#define RADIO_GPIO_SPI_MISO       GPIO_Pin_6
-#define RADIO_GPIO_SPI_MOSI       GPIO_Pin_7
-
-#define RADIO_SPI                 SPI1
-
-#define DUMMY_BYTE    0xA5
-
-/* nRF24L SPI commands */
-#define CMD_R_REG              0x00
-#define CMD_W_REG              0x20
-#define CMD_R_RX_PAYLOAD       0x61
-#define CMD_W_TX_PAYLOAD       0xA0
-#define CMD_FLUSH_TX           0xE1
-#define CMD_FLUSH_RX           0xE2
-#define CMD_REUSE_TX_PL        0xE3
-#define CMD_ACTIVATE           0x50
-#define CMD_ACTIVATE_BK2423    0x53
-#define CMD_RX_PL_WID          0x60
-#define CMD_W_ACK_PAYLOAD(P)  (0xA8|(P&0x0F))
-#define CMD_W_PAYLOAD_NO_ACK   0xD0
-#define CMD_NOP                0xFF
-
 /* Usefull macro */
 #define RADIO_EN_CS() GPIO_ResetBits(GPIOA, RADIO_GPIO_SPI_CS)
 #define RADIO_DIS_CS() GPIO_SetBits(GPIOA, RADIO_GPIO_SPI_CS)
 #define RADIO_DIS_CE() //GPIO_ResetBits(RADIO_GPIO_CE_PORT, RADIO_GPIO_CE)
 #define RADIO_EN_CE() //GPIO_SetBits(RADIO_GPIO_CE_PORT, RADIO_GPIO_CE)
-#define ACTIVATE_DATA   0x73
-#define ACTIVATE_BK2423_DATA   0x53
-
 
 /* Private variables */
 static bool isInit;
@@ -410,19 +365,6 @@ void nrfInit(void)
   
   isInit = true;
 }
-
-
-//void nrfInit(void)
-//{
-//		
-//	
-
-//		isInit = true;
-//}
-
-
-
-
 
 
 bool nrfTest(void)

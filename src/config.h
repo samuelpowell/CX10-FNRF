@@ -107,6 +107,9 @@
 #include "serial.h"
 #include "nrf24RX.h"
 #include "nrf24l01.h"
+	
+#include <stdbool.h>
+#include <string.h>
 
 //defines
 #define abs(x) ((x) > 0 ? (x) : -(x))

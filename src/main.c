@@ -224,7 +224,10 @@ int main(void){
 			
 			// write Motors
 			
-			if(failsave > 10) RXcommands[0] = 0; // fall down
+			if(failsave > 10) {
+				RXcommands[0] = 0; 		// fall down
+				RXcommands[4] = -500; // Disarm
+			}
 			
 			#ifdef MOTOR_DISABLE
 				RXcommands[0] = 0;
