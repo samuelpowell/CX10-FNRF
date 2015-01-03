@@ -1,3 +1,31 @@
+/*  Cheerson CX-10 integrated RF rate mode firmware.
+     - Main FC routine.
+
+    This source is modified from Felix Niessen's original firmware 
+    whose original GPLv3 license is repeated below. See the following
+    thread for details:
+
+    http://www.rcgroups.com/forums/showpost.php?p=30045580&postcount=1.
+
+    All original components are provided under the GPLv3:
+
+    Copyright (C) 2015, Samuel Powell.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 /*
 	STM32F05x brushed Copter FW v1.0
 	Copyright © 2014 Felix Niessen ( felix.niessen@googlemail.com )
@@ -18,6 +46,7 @@
 	
 	inspired by MultiWiiCopter by Alexandre Dubus
 */
+	
 #include "config.h"
 
 static uint8_t TelMtoSend = 0;

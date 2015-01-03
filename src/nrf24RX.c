@@ -1,20 +1,36 @@
-/*
-  This file is part of STM32F05x brushed Copter FW
-  Copyright � 2014 Felix Niessen ( felix.niessen@googlemail.com )
+/*  Cheerson CX-10 integrated RF rate mode firmware.
+     - Red PCB protocol implementation.
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  any later version.
+    This source contains components from Felix Niessen's original
+    firmware (GPLv3), see the following thread for details:
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+    http://www.rcgroups.com/forums/showpost.php?p=30045580&postcount=1.
 
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    The YD717 (Skywalker) protocol, and Beken 2423 initialisation
+    routines were derived from the DeviationTX project (GPLv3), in
+    particular the source file yd717_nrf24l01.c from:
+
+    https://bitbucket.org/PhracturedBlue/
+
+    All original components are provided under the GPLv3:
+
+    Copyright (C) 2015, Samuel Powell.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 */
+
 #include "config.h"
 
 #define RF_CHANNEL      0x3C      // Stock TX fixed frequency
