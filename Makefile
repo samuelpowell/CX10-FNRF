@@ -8,7 +8,7 @@ DEBUG ?=
 # Working directories
 ROOT		 = $(dir $(lastword $(MAKEFILE_LIST)))
 OBJECT_DIR	 = $(ROOT)/obj
-BIN_DIR		 = $(ROOT)/obj
+BIN_DIR		 = $(ROOT)/builds
 
 LIBSDIR    = ./Libraries
 CORELIBDIR = $(LIBSDIR)/CMSIS/Include
@@ -63,8 +63,8 @@ SRC += $(STMSPSRCDDIR)/stm32f0xx_misc.c
 #
 
 # Tool names
-CC		 = arm-none-eabi-gcc
-OBJCOPY		 = arm-none-eabi-objcopy
+CC		 	 =  arm-none-eabi-gcc
+OBJCOPY		 =  arm-none-eabi-objcopy
 
 #
 # Tool options.
@@ -114,10 +114,10 @@ CFLAGS = $(BASE_CFLAGS) \
 	-Os
 endif
 
-TRGT = arm-none-eabi-
+TRGT =  arm-none-eabi-
 
-TARGET_HEX	 = $(BIN_DIR)/cheersonAF.hex
-TARGET_ELF	 = $(BIN_DIR)/cheersonAF.elf
+TARGET_HEX	 = $(BIN_DIR)/cx10_fnrf_gnu_r01.hex
+TARGET_ELF	 = $(BIN_DIR)/cx10_fnrf_gnu_r01.elf
 TARGET_OBJS	 = $(addsuffix .o,$(addprefix $(OBJECT_DIR)/,$(basename $(SRC))))
 
 # List of buildable ELF files and their object dependencies.
