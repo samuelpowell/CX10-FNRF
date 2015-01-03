@@ -91,7 +91,7 @@ int main(void){
 
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1 | RCC_APB1Periph_TIM2 | RCC_APB1Periph_TIM3, ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1 | RCC_APB2Periph_ADC1 | RCC_APB2Periph_TIM16 | RCC_APB2Periph_TIM1 | RCC_APB2Periph_SYSCFG, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1 | RCC_APB2Periph_USART1 | RCC_APB2Periph_ADC1 | RCC_APB2Periph_TIM16 | RCC_APB2Periph_TIM1 | RCC_APB2Periph_SYSCFG, ENABLE);
 	
 	//init
 	init_Timer();
@@ -99,7 +99,11 @@ int main(void){
 	#if defined(SERIAL_ACTIVE)
 	init_UART(115200);
 	#endif
-	init_PPMRX();
+	
+	#ifndef CX_RED_RF 
+		init_PPMRX();
+	#endif
+	
 	init_MPU6050();
 	
 	GPIO_InitTypeDef LEDGPIOinit;
@@ -123,7 +127,10 @@ int main(void){
 		GPIO_WriteBit(GPIOA, GPIO_Pin_5, Bit_SET);
 	#endif
 	
-	
+	// Initialise the RF RX and bind
+	#ifdef CX_RED_RF
+	init_RFRX();
+	#endif
 	
 	while(1){
 		static uint32_t last_Time = 0;
@@ -143,7 +150,14 @@ int main(void){
 			
 			//collect datas
 			ReadMPU();
+			
+			#ifndef CX_RED_RX
 			getRXDatas();
+			#endif
+			
+			#ifdef CX_RED_RX
+			get_RFRXDatas();
+			#endif
 			
 			// get setpoint
 			for(i=0;i<3;i++){
