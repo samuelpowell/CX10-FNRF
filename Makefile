@@ -1,11 +1,4 @@
 
-
-
-
-
-
-
-
 # Compile-time options
 OPTIONS		?=
 
@@ -37,6 +30,8 @@ SRC += ./src/timer.c
 SRC += ./src/adc.c
 SRC += ./src/stm32f0xx_it.c
 SRC += ./src/system_stm32f0xx.c
+SRC += ./src/nrf24l01.c
+SRC += ./src/nrf24RX.c
 ## used parts of the STM-Library
 SRC += $(STMSPSRCDDIR)/stm32f0xx_adc.c
 SRC += $(STMSPSRCDDIR)/stm32f0xx_cec.c
