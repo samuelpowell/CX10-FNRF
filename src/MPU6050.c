@@ -22,11 +22,11 @@
 
 #define MPU_address                   (0x68<<1) 
 
-int16_t GyroXYZ[3] = {0,0,0};
-int16_t ACCXYZ[3] = {0,0,0};
-int16_t angle[3] = {0,0,0};
-int16_t I2C_Errors = 0;
-uint16_t calibGyroDone = 500;
+extern int16_t GyroXYZ[3];
+extern int16_t ACCXYZ[3];
+extern int16_t angle[3];
+extern int16_t I2C_Errors;
+extern uint16_t calibGyroDone;
 
 void I2C_WrReg(uint8_t Reg, uint8_t Val){
 	

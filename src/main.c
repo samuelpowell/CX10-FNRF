@@ -41,14 +41,14 @@ uint8_t TelAY[10] = {'A','C','C',' ','Y',' ',' ',' ',' ',' '};
 uint8_t TelAZ[10] = {'A','C','C',' ','Z',' ',' ',' ',' ',' '};
 uint8_t TelDefaultAnswer[10] = {'H','o','d','o','r','!',' ',' ',' ',' '};
 
-int16_t RXcommands[6];
+int16_t RXcommands[6] = {0,500,500,500,500,500};
 int8_t Armed = 0;
 int16_t LiPoVolt = 0;
-int16_t GyroXYZ[3];
-int16_t ACCXYZ[3];
-int16_t angle[3];
-int16_t I2C_Errors;
-uint16_t calibGyroDone;
+int16_t GyroXYZ[3] = {0,0,0};
+int16_t ACCXYZ[3] = {0,0,0};
+int16_t angle[3] = {0,0,0};
+int16_t I2C_Errors = 0;
+uint16_t calibGyroDone = 500;
 uint8_t failsave = 100;
 
 

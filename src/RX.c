@@ -19,8 +19,8 @@
 
 
 //PA14(SWCLK) as PPM input
-int16_t RXcommands[6] = {0,500,500,500,500,500};// Throttle,Roll,Pitch,Yaw,Aux1,Aux2
-uint8_t failsave;
+extern int16_t RXcommands[6];// Throttle,Roll,Pitch,Yaw,Aux1,Aux2
+extern uint8_t failsave;
 static uint8_t chanOrder[6] = {RC_CHAN_ORDER};
 static uint16_t RawChannels[6] = {1500,1500,1500,1500,1500,1500};
 static uint8_t chanNewValue[6] = {1,1,1,1,1,1};

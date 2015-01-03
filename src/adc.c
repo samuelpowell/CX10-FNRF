@@ -17,7 +17,7 @@
 */
 #include "config.h"
 
-int16_t LiPoVolt;
+extern int16_t LiPoVolt;
 
 void init_ADC(){
 	
