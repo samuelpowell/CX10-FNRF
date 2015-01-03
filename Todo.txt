@@ -1,0 +1,14 @@
+
+1. wirless mouse chip SPI1 to have the mini TX working
+NSS = A4 // AF0
+SCK = A5 // AF0
+MISO = A6 // AF0
+MOSI = A7 // AF0
+
+2. a IMU to have a level Mode
+
+3. Spektrum Sat. support at RX pin 
+
+
+
+
