@@ -41,7 +41,7 @@ uint8_t TelAY[10] = {'A','C','C',' ','Y',' ',' ',' ',' ',' '};
 uint8_t TelAZ[10] = {'A','C','C',' ','Z',' ',' ',' ',' ',' '};
 uint8_t TelDefaultAnswer[10] = {'H','o','d','o','r','!',' ',' ',' ',' '};
 
-int16_t RXcommands[6] = {0,500,500,500,500,500};
+int16_t RXcommands[6] = {0,500,500,500,-500,500};
 int8_t Armed = 0;
 int16_t LiPoVolt = 0;
 int16_t GyroXYZ[3] = {0,0,0};
@@ -100,7 +100,7 @@ int main(void){
 	init_UART(115200);
 	#endif
 	
-	#ifndef CX_RED_RF 
+	#ifndef CX_10_RED_RF 
 		init_PPMRX();
 	#endif
 	
@@ -128,7 +128,7 @@ int main(void){
 	#endif
 	
 	// Initialise the RF RX and bind
-	#ifdef CX_RED_RF
+	#ifdef CX_10_RED_RF
 	init_RFRX();
 	#endif
 	
@@ -151,11 +151,11 @@ int main(void){
 			//collect datas
 			ReadMPU();
 			
-			#ifndef CX_RED_RX
+			#ifndef CX_10_RED_RF
 			getRXDatas();
 			#endif
 			
-			#ifdef CX_RED_RX
+			#ifdef CX_10_RED_RF
 			get_RFRXDatas();
 			#endif
 			
@@ -225,6 +225,10 @@ int main(void){
 			// write Motors
 			
 			if(failsave > 10) RXcommands[0] = 0; // fall down
+			
+			#ifdef MOTOR_DISABLE
+				RXcommands[0] = 0;
+			#endif
 			
 			#if defined(CX_10_RED_BOARD)
 			TIM1->CCR1 = constrain(MIX(+1,-1,-1),motorMin,motorMax); // front left

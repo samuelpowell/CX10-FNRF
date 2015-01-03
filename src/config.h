@@ -6,9 +6,10 @@
 //#define CX_10_BLUE_BOARD
 
 // Internal RF (only applicable to red FC at present)
-#ifdef CX_RED_BOARD
+#ifdef CX_10_RED_BOARD
  
- #define CX_RED_RF
+ #define CX_10_RED_RF
+ //#define MOTOR_DISABLE // Test mode 
  
 #endif
 

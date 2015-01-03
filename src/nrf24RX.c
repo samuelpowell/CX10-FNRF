@@ -34,8 +34,8 @@ void init_RFRX(){
 	// Initialise SPI, clocks, etc.
 	nrfInit();
 		
-	// Power up with CRC enabled
-	nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_PWR_UP | NRF24_PRIM_RX));	
+	// Power down with CRC enabled
+	nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC  | NRF24_PRIM_RX));	
 
 	// Configuration
 	nrfWrite1Reg(REG_EN_AA, NRF24_ENAA_PA);					// Enable auto-ack on all pipes
@@ -99,6 +99,9 @@ void init_RFRX(){
 	// Set device to bind address
 	nrfWriteReg( REG_RX_ADDR_P0, (char *) addr_bind, 5);
 	nrfWriteReg( REG_TX_ADDR, (char *) addr_bind, 5);
+	
+	// Power up
+	nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_PWR_UP | NRF24_PRIM_RX));
 
 	static char status;
 	
@@ -168,16 +171,23 @@ void get_RFRXDatas()
 		
 		nrfFlushRx();
 		nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);
-		// FC order: T   A   E   R   A1   A2
-		// RF order: T   R   E   A   Rt   Et   At   F
 		
-		// Bitshifting the input leads to maximum scale of 255*4 = 1020, close enough
+		// FC order: T   A   E   R   A1   A2
+		// RF order: T 	 R   ?   E   A 	  Et		At 	F 	?
+		
+		// PPM firmware expects a range of 1000, TX range is 0xFF (max rate), mid-stick is 0x40,
+		// BS twice leads to a range of 1020, which is close enough for now.
 		RXcommands[0] = constrain((((int16_t)rxbuffer[0])<<2), 0, 1000);
-		RXcommands[1] = constrain((((int16_t)rxbuffer[4])<<2) - 500, -500, 500);
-		RXcommands[2] = constrain((((int16_t)rxbuffer[3])<<2) - 500, -500, 500);
-		RXcommands[3] = constrain((((int16_t)rxbuffer[1])<<2) - 500, -500, 500);
-		RXcommands[4] = constrain((((int16_t)rxbuffer[7])<<2) - 500, -500, 500);
-			
+		RXcommands[1] = constrain((((int16_t)rxbuffer[4])<<2) - 512, -500, 500);
+		RXcommands[2] = constrain((((int16_t)rxbuffer[3])<<2) - 512, -500, 500);
+		RXcommands[3] = constrain((((int16_t)rxbuffer[1])<<2) - 512, -500, 500);
+		
+		// Forward flip sets AUX1 high, backwards flip sets AUX1 low
+		if( rxbuffer[7] & 0x0F ) {
+			if((uint8_t) rxbuffer[3] > 0xF0) RXcommands[4] = 500;
+			if((uint8_t) rxbuffer[3] < 0x0F) RXcommands[4] = -500;
+		}
+				
 		// Since data has been received, reset failsafe counter
 		failsave = 0;
 	}
