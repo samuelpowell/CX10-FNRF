@@ -5,9 +5,9 @@ Cheerson CX10 (RED) rate mode firmware employing integrated RF controller and st
 
 1. About
 
-  The Cheerson CX10 (RED) is a specific version of a quadcopter incoporating an ARM Cortex M0 MCU, Invensense MPU-6050 and Beken BK2423 (Nordic NRF24 clone). In 2014, Felix Niessen released alternative firmware for the device which allows it to be flown in rate mode using a standard PPM receiver. See the following page for details: http://www.rcgroups.com/forums/showpost.php?p=30045580&postcount=1.
+  The Cheerson CX10 (RED) is a specific version of a quadcopter incorporating an ARM Cortex M0 MCU, Invensense MPU-6050 and Beken BK2423 (Nordic NRF24 clone). In 2014, Felix Niessen released alternative firmware for the device which allows it to be flown in rate mode using a standard PPM receiver. See the following page for details: http://www.rcgroups.com/forums/showpost.php?p=30045580&postcount=1.
   
-  This code builds upon Felix's work by enabling the device to be flown using the onboard radio, using the original controller (or even better, any device implementing the appropraite protocol). The radio driver was mostly derived from the Crazyflie project (see bitcraze.se), and the protocol implementation from the DevtiationTX project (http://www.deviationtx.com).
+  This code builds upon Felix's work by enabling the device to be flown using the onboard radio, using the original controller (or even better, any device implementing the appropriate protocol). The radio driver was mostly derived from the Crazyflie project (see bitcraze.se), and the protocol implementation from the DevtiationTX project (http://www.deviationtx.com).
   
   In making these changes I have attempted to change as little as possible in Felix's original code.
   
