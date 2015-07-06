@@ -22,7 +22,7 @@ STMSPINCDDIR = $(STMSPDDIR)/inc
 # Source files common to all targets
 SRC =  ./startup/startup_stm32f0xx.s
 SRC += ./src/main.c
-SRC += ./src/RX.c
+#SRC += ./src/RX.c
 SRC += ./src/MPU6050.c
 SRC += ./src/adc.c
 SRC += ./src/serial.c
@@ -30,8 +30,10 @@ SRC += ./src/timer.c
 SRC += ./src/adc.c
 SRC += ./src/stm32f0xx_it.c
 SRC += ./src/system_stm32f0xx.c
-SRC += ./src/nrf24l01.c
-SRC += ./src/nrf24RX.c
+#SRC += ./src/nrf24l01.c
+SRC += ./src/xn297.c
+#SRC += ./src/nrf24RX.c
+SRC += ./src/xn297RX.c
 ## used parts of the STM-Library
 SRC += $(STMSPSRCDDIR)/stm32f0xx_adc.c
 SRC += $(STMSPSRCDDIR)/stm32f0xx_cec.c
@@ -118,10 +120,14 @@ TRGT =  arm-none-eabi-
 
 TARGET_HEX	 = $(BIN_DIR)/cx10_fnrf_gnu_r01.hex
 TARGET_ELF	 = $(BIN_DIR)/cx10_fnrf_gnu_r01.elf
+TARGET_BIN       = $(BIN_DIR)/cx10_fnrf_gnu_r01.bin
 TARGET_OBJS	 = $(addsuffix .o,$(addprefix $(OBJECT_DIR)/,$(basename $(SRC))))
 
 # List of buildable ELF files and their object dependencies.
 # It would be nice to compute these lists, but that seems to be just beyond make.
+
+$(TARGET_BIN): $(TARGET_ELF)
+	$(OBJCOPY) -Obinary $< $@
 
 $(TARGET_HEX): $(TARGET_ELF)
 	$(OBJCOPY) -O ihex $< $@
@@ -149,7 +155,7 @@ $(OBJECT_DIR)/%.o): %.S
 	@$(CC) -c -o $@ $(ASFLAGS) $< 
 
 clean:
-	rm -f $(TARGET_HEX) $(TARGET_ELF) $(TARGET_OBJS)
+	rm -f $(TARGET_HEX) $(TARGET_ELF) $(TARGET_BIN) $(TARGET_OBJS)
 
 help:
 	@echo ""

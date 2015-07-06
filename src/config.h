@@ -1,9 +1,10 @@
 // ===== CONFIG ===== //
 
 // Cheerson Board Define
-#define CX_10_RED_BOARD
+//#define CX_10_RED_BOARD
 //#define CX_10_GREEN_BOARD // ATM. not implemented
-//#define CX_10_BLUE_BOARD
+#define CX_10_BLUE_BOARD
+#define CX_10_BLUE_RF
 
 // Internal RF (only applicable to red FC at present)
 #ifdef CX_10_RED_BOARD
@@ -93,7 +94,15 @@
 	#define ACC_ORIENTATION(X, Y, Z)  {ACCXYZ[0]  = Y; ACCXYZ[1]  =  -X; ACCXYZ[2]  =  Z;}
 #endif
 
-
+#if defined(CX_10_BLUE_RF)
+    #define RADIO_SPI                 SPI1
+    #define RADIO_GPIO_SPI_CS         GPIO_Pin_15
+    #define RADIO_GPIO_SPI_SCK        GPIO_Pin_3
+    #define RADIO_GPIO_SPI_MISO       GPIO_Pin_4
+    #define RADIO_GPIO_SPI_MOSI       GPIO_Pin_5
+    #define RADIO_GPIO_CE_PORT        GPIOB
+    #define RADIO_GPIO_CE             GPIO_Pin_8
+#endif
 
 
 
@@ -102,12 +111,13 @@
 #include "adc.h"
 #include "main.h"
 #include "MPU6050.h"
-#include "RX.h"
+//#include "RX.h"
 #include "timer.h"
 #include "serial.h"
-#include "nrf24RX.h"
-#include "nrf24l01.h"
-	
+//#include "nrf24RX.h"
+#include "xn297RX.h"
+//#include "nrf24l01.h"
+#include "xn297.h"
 #include <stdbool.h>
 #include <string.h>
 
