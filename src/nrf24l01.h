@@ -99,6 +99,9 @@ void nrfIsr( void);
 #define REG_FIFO_STATUS 0x17
 #define REG_DYNPD 0x1C
 #define REG_FEATURE 0x1D
+#define REG_DEMOD_CAL 0x19
+#define REG_RF_CAL 0x1E
+#define REG_BB_CAL 0x1F
 
 #define VAL_RF_SETUP_250K 0x26
 #define VAL_RF_SETUP_1M   0x06
@@ -178,6 +181,20 @@ void nrfIsr( void);
 #define CMD_W_PAYLOAD_NO_ACK   	0xD0
 #define CMD_NOP                	0xFF
 
+#ifdef CX10_BLUE
+    #define RADIO_EN_CS() GPIO_ResetBits(GPIOA, RADIO_GPIO_SPI_CS)
+    #define RADIO_DIS_CS() GPIO_SetBits(GPIOA, RADIO_GPIO_SPI_CS)
+    #define RADIO_DIS_CE() GPIO_ResetBits(RADIO_GPIO_CE_PORT, RADIO_GPIO_CE)
+    #define RADIO_EN_CE() GPIO_SetBits(RADIO_GPIO_CE_PORT, RADIO_GPIO_CE)
+#endif
+
+#ifdef CX10_REDV1
+    #define RADIO_EN_CS() GPIO_ResetBits(GPIOA, RADIO_GPIO_SPI_CS)
+    #define RADIO_DIS_CS() GPIO_SetBits(GPIOA, RADIO_GPIO_SPI_CS)
+    #define RADIO_DIS_CE() 
+    #define RADIO_EN_CE() 
+#endif
+
 
 
 /* Low level reg access
@@ -200,6 +217,7 @@ unsigned char nrfActivate( void );
 unsigned char nrfActivateBK2423( void );
 unsigned char nrfWriteAck(unsigned int pipe, char *buffer, int len);
 unsigned char nrfReadRX(char *buffer, int len);
+unsigned char nrfSendTX(char *buffer, int len);
 void nrfSetChannel(unsigned int channel);
 void nrfSetDatarate(int datarate);
 void nrfSetAddress(unsigned int pipe, char* address);

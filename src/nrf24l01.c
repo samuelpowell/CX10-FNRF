@@ -58,12 +58,6 @@
 #include "stm32f0xx_spi.h"
 #include "stm32f0xx_exti.h"
 
-/* Usefull macro */
-#define RADIO_EN_CS() GPIO_ResetBits(GPIOA, RADIO_GPIO_SPI_CS)
-#define RADIO_DIS_CS() GPIO_SetBits(GPIOA, RADIO_GPIO_SPI_CS)
-#define RADIO_DIS_CE() //GPIO_ResetBits(RADIO_GPIO_CE_PORT, RADIO_GPIO_CE)
-#define RADIO_EN_CE() //GPIO_SetBits(RADIO_GPIO_CE_PORT, RADIO_GPIO_CE)
-
 /* Private variables */
 static bool isInit;
 static void (*interruptCb)(void) = NULL;
@@ -259,6 +253,23 @@ unsigned char nrfReadRX(char *buffer, int len)
   return status;
 }
 
+unsigned char nrfSendTX(char *buffer, int len)
+{
+  unsigned char status;
+  int i;
+
+  RADIO_EN_CS();
+
+  /* Send the read command with the address */
+  status = spiSendByte(CMD_W_TX_PAYLOAD);
+  /* Send LEN bytes */
+  for(i=0; i<len; i++)
+    spiSendByte(buffer[i]);
+  RADIO_DIS_CS();
+
+  return status;
+}
+
 /* Interrupt service routine, call the interrupt callback
  */
 void nrfIsr()
@@ -346,24 +357,30 @@ void nrfInit(void)
 
 //  SPI SCK pin configuration
  GPIO_InitStructure.GPIO_Pin = RADIO_GPIO_SPI_SCK;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
+  GPIO_Init(RADIO_SPI_PORT, &GPIO_InitStructure);
 
 //   SPI  MOSI pin configuration
   GPIO_InitStructure.GPIO_Pin =  RADIO_GPIO_SPI_MOSI;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
+  GPIO_Init(RADIO_SPI_PORT, &GPIO_InitStructure);
 
 //  SPI MISO pin configuration
   GPIO_InitStructure.GPIO_Pin = RADIO_GPIO_SPI_MISO;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
+  GPIO_Init(RADIO_SPI_PORT, &GPIO_InitStructure);
 	
-// SPI CS
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Pin = RADIO_GPIO_SPI_CS;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
+  // SPI CS
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_Pin = RADIO_GPIO_SPI_CS;
+    GPIO_Init(RADIO_SPI_CS_PORT, &GPIO_InitStructure);
 
-  GPIO_PinAFConfig(GPIOA, RADIO_GPIO_SPI_SCK, GPIO_AF_0);
-  GPIO_PinAFConfig(GPIOA, RADIO_GPIO_SPI_MOSI, GPIO_AF_0);
-  GPIO_PinAFConfig(GPIOA, RADIO_GPIO_SPI_MISO, GPIO_AF_0);
+#if defined(CX10_BLUE)
+  // RADIO CE
+    GPIO_InitStructure.GPIO_Pin = RADIO_GPIO_CE;
+    GPIO_Init(RADIO_GPIO_CE_PORT, &GPIO_InitStructure);
+#endif
+
+  GPIO_PinAFConfig(RADIO_SPI_PORT, RADIO_GPIO_SPI_SCK, GPIO_AF_0);
+  GPIO_PinAFConfig(RADIO_SPI_PORT, RADIO_GPIO_SPI_MOSI, GPIO_AF_0);
+  GPIO_PinAFConfig(RADIO_SPI_PORT, RADIO_GPIO_SPI_MISO, GPIO_AF_0);
 
   // disable the chip select
   RADIO_DIS_CS();

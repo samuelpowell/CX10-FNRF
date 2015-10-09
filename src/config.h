@@ -1,23 +1,12 @@
-// ===== CONFIG ===== //
-
-// Cheerson Board Define
-//#define CX_10_RED_BOARD
-//#define CX_10_GREEN_BOARD // ATM. not implemented
-#define CX_10_BLUE_BOARD
-#define CX_10_BLUE_RF
-
-// Internal RF (only applicable to red FC at present)
-#ifdef CX_10_RED_BOARD
- 
- #define CX_10_RED_RF
- //#define MOTOR_DISABLE // Test mode 
- 
-#endif
-
+// Target board
+#define CX10_BLUE
+//#define CX10_REDV1
+//#define CX10_REDV2    // Not implemented
+//#define CX10_GREEN    // Not implemented
 
 // Throttle settings
-#define MIN_COMMAND 80 // controll starts if throttle is higher then that 
-#define MIN_THROTTLE 50 // minimum speed for the motors
+#define MIN_COMMAND 80      // controll starts if throttle is higher then that 
+#define MIN_THROTTLE 50     // minimum speed for the motors
 
 // P term 40 == 4.0
 #define GYRO_P_ROLL  45
@@ -35,32 +24,45 @@
 #define GYRO_D_YAW   0
 
 // RC Settings
-#define RC_RATE 460 // 100-990
-#define RC_ROLL_RATE 88 // 0-100
-#define RC_PITCH_RATE 88 // 0-100
-#define RC_YAW_RATE 88 // 0-100
+#define RC_RATE 460         // 100-990
+#define RC_ROLL_RATE 88     // 0-100
+#define RC_PITCH_RATE 88    // 0-100
+#define RC_YAW_RATE 88      // 0-100
 
-// order is Throttle,Roll,Pitch,Yaw,Aux1,Aux2
-#define RC_CHAN_ORDER 0,1,2,3,4,5 // deltang ppm
-//#define RC_CHAN_ORDER 2,0,1,3,4,5 // orangerx ppm
+// Channel order (TAER12)
+#define RC_CHAN_ORDER 0,1,2,3,4,5
 
-
-
-// just for Setting things up
-
-// force Serial1 (pin A9 & A10).  unflyable (not needed for the red board)
+// Force serial output (pin A9 & A10) 
+// Serial is active by default on REDV1, and can be anabled for other
+// boards, though they cannot be flown whilst in this mode.
 //#define FORCE_SERIAL
 
-
-
-// ===== CONFIG END ===== //
-
-
-#if defined(CX_10_RED_BOARD) || defined(FORCE_SERIAL)
-	#define SERIAL_ACTIVE
+// Configure radio chipset and protocol according to device
+#ifdef CX10_REDV1
+    #define RF_CHSET_NRF24
+    #define RF_PROTO_REDV1
 #endif
 
-#if defined(CX_10_RED_BOARD)
+#ifdef CX10_REDV2
+    #define RF_CHSET_XN297
+    #define RF_PROTO_BLUE
+#endif
+
+#ifdef CX10_BLUE
+    #define RF_CHSET_XN297
+    #define RF_PROTO_BLUE
+#endif
+
+#ifdef CX10_BLUE
+    #define RF_CHSET_XN297
+    #define RF_PROTO_GREEN
+#endif
+
+#if defined(CX10_REDV1) || defined(FORCE_SERIAL)
+    #define SERIAL_ACTIVE
+#endif
+
+#if defined(CX10_REDV1)
 	#define LEDon Bit_SET
 	#define LEDoff Bit_RESET
 	
@@ -70,17 +72,20 @@
 	#define LED2_PORT GPIOA
 	#define LED2_BIT GPIO_Pin_15
 	
-	#define RADIO_SPI                 SPI1
+	#define GYRO_ORIENTATION(X, Y, Z) {GyroXYZ[0] = -X; GyroXYZ[1] = -Y; GyroXYZ[2] = -Z;}
+	#define ACC_ORIENTATION(X, Y, Z)  {ACCXYZ[0]  = -Y; ACCXYZ[1]  =  -X; ACCXYZ[2]  =  -Z;}
+
+    #define RADIO_SPI_PORT            GPIOA
+    #define RADIO_SPI_CS_PORT         GPIOA
+    #define RADIO_SPI                 SPI1
 	#define RADIO_GPIO_SPI_CS         GPIO_Pin_4
 	#define RADIO_GPIO_SPI_SCK        GPIO_Pin_5
 	#define RADIO_GPIO_SPI_MISO       GPIO_Pin_6
 	#define RADIO_GPIO_SPI_MOSI       GPIO_Pin_7
-	
-	#define GYRO_ORIENTATION(X, Y, Z) {GyroXYZ[0] = -X; GyroXYZ[1] = -Y; GyroXYZ[2] = -Z;}
-	#define ACC_ORIENTATION(X, Y, Z)  {ACCXYZ[0]  = -Y; ACCXYZ[1]  =  -X; ACCXYZ[2]  =  -Z;}
 #endif
+    
 
-#if defined(CX_10_BLUE_BOARD)
+#if defined(CX10_BLUE)
 	#define LEDon Bit_RESET
 	#define LEDoff Bit_SET
 
@@ -92,9 +97,9 @@
 
 	#define GYRO_ORIENTATION(X, Y, Z) {GyroXYZ[0] = X; GyroXYZ[1] = Y; GyroXYZ[2] = -Z;}
 	#define ACC_ORIENTATION(X, Y, Z)  {ACCXYZ[0]  = Y; ACCXYZ[1]  =  -X; ACCXYZ[2]  =  Z;}
-#endif
 
-#if defined(CX_10_BLUE_RF)
+    #define RADIO_SPI_PORT            GPIOB
+    #define RADIO_SPI_CS_PORT         GPIOA
     #define RADIO_SPI                 SPI1
     #define RADIO_GPIO_SPI_CS         GPIO_Pin_15
     #define RADIO_GPIO_SPI_SCK        GPIO_Pin_3
@@ -104,28 +109,34 @@
     #define RADIO_GPIO_CE             GPIO_Pin_8
 #endif
 
-
-
-//includes
-#include "stm32f0xx_conf.h"
+// System headers
+#include <stdbool.h>
+#include <string.h>
+    
+// Library headers
+#include "stm32f0xx_conf.h"    
+    
+// Application headers
 #include "adc.h"
 #include "main.h"
 #include "MPU6050.h"
-//#include "RX.h"
 #include "timer.h"
 #include "serial.h"
-//#include "nrf24RX.h"
-#include "xn297RX.h"
-//#include "nrf24l01.h"
-#include "xn297.h"
-#include <stdbool.h>
-#include <string.h>
+#include "nrf24l01.h"
 
-//defines
+#if defined(RF_PROTO_BLUE)
+    #include "xn297RX.h"
+#endif
+
+#if defined(RF_PROTO_REDV1)
+    #include "nrf24RX.h"
+#endif
+
+// Preprocessor functions
 #define abs(x) ((x) > 0 ? (x) : -(x))
 #define constrain(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
 
-//globals
+// Global variables
 extern int16_t RXcommands[6];
 extern int8_t Armed;
 extern int16_t LiPoVolt;

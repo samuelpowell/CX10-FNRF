@@ -33,6 +33,8 @@
 
 #include "config.h"
 
+#ifdef RF_PROTO_REDV1
+
 #define RF_CHANNEL      0x3C      // Stock TX fixed frequency
 #define PAYLOADSIZE       9          // Protocol packet size
 
@@ -239,3 +241,4 @@ void bindflasher(uint32_t rate) {
 			
 }
 
+#endif

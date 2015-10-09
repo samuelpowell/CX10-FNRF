@@ -457,14 +457,19 @@
               <FilePath>.\src\RX.c</FilePath>
             </File>
             <File>
-              <FileName>xn297.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\xn297.c</FilePath>
-            </File>
-            <File>
               <FileName>xn297RX.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\xn297RX.c</FilePath>
+            </File>
+            <File>
+              <FileName>nrf24l01.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\nrf24l01.c</FilePath>
+            </File>
+            <File>
+              <FileName>nrf24RX.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\nrf24RX.c</FilePath>
             </File>
           </Files>
         </Group>

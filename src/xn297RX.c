@@ -31,8 +31,9 @@
 
 */
 
-
 #include "config.h"
+
+#ifdef RF_PROTO_BLUE
 
 #define RF_BIND_CHANNEL      0x02      // Stock TX fixed frequency
 #define PAYLOADSIZE          19          // Protocol packet size
@@ -48,7 +49,7 @@ const char rf_addr_bind[5] = {0xCC, 0xCC, 0xCC, 0xCC, 0xCC};
 const char demod_cal[5] = {0x0B, 0xDF, 0xC4, 0xA7, 0x03};
 const char rf_cal[7] = {0xC9, 0x9A, 0xB0, 0x61, 0xBB, 0xAB, 0x9C};
 const char bb_cal[5] = {0x4C, 0x84, 0x67, 0x9C, 0x20};
-static char rf_addr_cmnd[5];
+
 
 
 #define CX10_NUM_RF_CHANNELS    4
@@ -485,3 +486,4 @@ void bindflasher(uint32_t rate) {
 			
 }
 
+ #endif
