@@ -138,6 +138,63 @@ void init_XN297() {
       nrfSendTX(txreply, 19);
       delayMicroseconds(150);
       RADIO_EN_CE();
+      delayMicroseconds(6000);
+      RADIO_DIS_CE();
+      
+      // Wait until next bind packet with correct aircraft ID
+      // back to read mode
+      nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_CRCO | NRF24_PWR_UP | NRF24_PRIM_RX));
+
+      nrfFlushRx();
+      nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);
+      nrfWrite1Reg(REG_RF_CH, RF_BIND_CHANNEL); // Channel 0x02
+
+      delayMicroseconds(300);
+      RADIO_EN_CE();
+
+
+ while(!(nrfGetStatus() & 0x40))  bindflasher(500);
+
+
+      // TX sends mutliple packets, so keep reading the FIFO
+      // until there is no more data.
+      while (!(nrfRead1Reg(REG_FIFO_STATUS) & 0x01)) {
+
+        // Bind packet is nine bytes on pipe zero
+        if(nrfRxLength(0) == PAYLOADSIZE) {
+
+          // Get the packet
+          nrfReadRX(rxbuffer, PAYLOADSIZE);
+            
+            // Check the bind packet now contains the correct AID
+            for(int i=1; i<5; i++) {
+                if(txreply[i] != rxbuffer[i])
+                {
+                    while(1)
+                    {}
+                    }
+                }
+
+            }
+        }
+      
+
+      RADIO_DIS_CE();
+
+      // Flush buffer and clear status
+      nrfFlushRx();
+      nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);
+
+      delayMicroseconds(3000);
+
+      // Send a signal back
+      // Change primary transmitter
+      nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_CRCO | NRF24_PWR_UP));
+
+      // Set rf channel again
+      nrfWrite1Reg(REG_RF_CH, RF_BIND_CHANNEL); // Channel 0x02
+      nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);
+      nrfFlushTx();      
 
       delayMicroseconds(6000);
       RADIO_DIS_CE();
@@ -158,7 +215,7 @@ void init_XN297() {
 
       nrfFlushRx();
       nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);
-      nrfWrite1Reg(REG_RF_CH, 0x0D); // Channel 0x02
+      nrfWrite1Reg(REG_RF_CH, 0x02); // Channel 0x02
 
       delayMicroseconds(300);
       RADIO_EN_CE();
