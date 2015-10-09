@@ -51,7 +51,6 @@
  */
 
 #include "config.h"
-#include "nrf24l01.h"
 
 #include "stm32f0xx_conf.h"
 #include "stm32f0xx_rcc.h"

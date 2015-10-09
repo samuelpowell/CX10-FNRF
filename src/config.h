@@ -122,14 +122,14 @@
 #include "MPU6050.h"
 #include "timer.h"
 #include "serial.h"
-#include "nrf24l01.h"
+#include "nrf24.h"
 
 #if defined(RF_PROTO_BLUE)
-    #include "xn297RX.h"
+    #include "proto_blue.h"
 #endif
 
 #if defined(RF_PROTO_REDV1)
-    #include "nrf24RX.h"
+    #include "proto_redv1.h"
 #endif
 
 // Preprocessor functions

@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>CX10_RED</TargetName>
+      <TargetName>CX10</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>5060020::V5.06 (build 20)::ARMCC</pCCUsed>
@@ -452,24 +452,19 @@
               <FilePath>.\src\system_stm32f0xx.c</FilePath>
             </File>
             <File>
-              <FileName>RX.c</FileName>
+              <FileName>nrf24.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\RX.c</FilePath>
+              <FilePath>.\src\nrf24.c</FilePath>
             </File>
             <File>
-              <FileName>xn297RX.c</FileName>
+              <FileName>proto_blue.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\xn297RX.c</FilePath>
+              <FilePath>.\src\proto_blue.c</FilePath>
             </File>
             <File>
-              <FileName>nrf24l01.c</FileName>
+              <FileName>proto_redv1.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\nrf24l01.c</FilePath>
-            </File>
-            <File>
-              <FileName>nrf24RX.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\nrf24RX.c</FilePath>
+              <FilePath>.\src\proto_redv1.c</FilePath>
             </File>
           </Files>
         </Group>
