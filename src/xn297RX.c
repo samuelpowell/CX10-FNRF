@@ -31,6 +31,7 @@
 
 */
 
+
 #include "config.h"
 
 #define RF_BIND_CHANNEL      0x02      // Stock TX fixed frequency
@@ -110,6 +111,10 @@ void init_XN297() {
 
           // Get the packet
           nrfReadRX(rxbuffer, PAYLOADSIZE);
+            for(int i=1; i<5; i++) {
+                txreply[i] = rxbuffer[i];
+                txreply2[i] = rxbuffer[i];
+            }
         }
       }
 
