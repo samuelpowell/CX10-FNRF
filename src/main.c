@@ -130,7 +130,7 @@ int main(void){
 	#endif
 	
 	#ifndef CX_10_RED_RF 
-		init_PPMRX();
+        //init_PPMRX();
 	#endif
 	
 	init_MPU6050();
@@ -146,20 +146,24 @@ int main(void){
 	LEDGPIOinit.GPIO_Pin = LED2_BIT;
 	GPIO_Init(LED2_PORT, &LEDGPIOinit);	
 	
-	GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDoff);
-	GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDoff);
-	
+    GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDoff);
+    GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDoff);
+
 	#if defined(CX_10_BLUE_BOARD)
 		LEDGPIOinit.GPIO_Pin = GPIO_Pin_5; // 3,3V LDO enable
 		GPIO_Init(GPIOA, &LEDGPIOinit);	
 		
 		GPIO_WriteBit(GPIOA, GPIO_Pin_5, Bit_SET);
 	#endif
+
 	
 	// Initialise the RF RX and bind
-	#ifdef CX_10_RED_RF
-	init_RFRX();
+    #ifdef CX_10_RED_RF
+    init_RFRX();
 	#endif
+    #ifdef CX_10_BLUE_RF
+    init_XN297();
+    #endif
 	
 	while(1){
 		static uint32_t last_Time = 0;
@@ -181,8 +185,12 @@ int main(void){
 			ReadMPU();
 			
 			#ifndef CX_10_RED_RF
-			getRXDatas();
+            //getRXDatas();
 			#endif
+
+            #ifdef CX_10_BLUE_RF
+            get_XN297_RFRXDatas();
+            #endif
 			
 			#ifdef CX_10_RED_RF
 			get_RFRXDatas();
@@ -226,7 +234,7 @@ int main(void){
 			}
 				
 			// Arm with Aux 1
-			if(RXcommands[4] > 150){
+            if(RXcommands[4] > 150){
 				if(Armed == 0 && OkToArm == 250 &&  failsave < 10 && RXcommands[0] <= 150){
 					Armed = 1;
 					GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDon);
@@ -237,7 +245,8 @@ int main(void){
 					GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDoff);
 				}
 				if(OkToArm < 250 &&  failsave < 10) OkToArm++;
-			}
+            }
+
 			
 			uint16_t motorMax = 0;
 			uint16_t motorMin = 0;
@@ -270,10 +279,16 @@ int main(void){
 			#endif
 			
 			#if defined(CX_10_BLUE_BOARD)
-			TIM1->CCR4 = constrain(MIX(+1,-1,-1),motorMin,motorMax); // front left
-			TIM1->CCR3 = constrain(MIX(-1,-1,+1),motorMin,motorMax); // front right
-			TIM1->CCR2 = constrain(MIX(-1,+1,-1),motorMin,motorMax); // rear right
-			TIM1->CCR1 = constrain(MIX(+1,+1,+1),motorMin,motorMax); // rear left
+            /*
+            TIM1->CCR4 = 0; // front left
+            TIM1->CCR3 = 0; // front right
+            TIM1->CCR2 = 0; // rear right
+            TIM1->CCR1 = RXcommands[0]; // rear left
+            */
+            TIM1->CCR4 = constrain(MIX(+1,-1,-1),motorMin,motorMax); // front left
+            TIM1->CCR3 = constrain(MIX(-1,-1,+1),motorMin,motorMax); // front right
+            TIM1->CCR2 = constrain(MIX(-1,+1,-1),motorMin,motorMax); // rear right
+            TIM1->CCR1 = constrain(MIX(+1,+1,+1),motorMin,motorMax); // rear left
 			#endif
 		}else failsave = 100; 
 
@@ -297,7 +312,7 @@ int main(void){
 					GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDon);
 				}else{
 					GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDon);
-					GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDoff);
+                    GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDoff);
 				}
 				#if defined(CX_10_BLUE_BOARD) // turn off to save the lipo
 				if(LiPoVolt < 250) GPIO_WriteBit(GPIOA, GPIO_Pin_5, Bit_RESET);
