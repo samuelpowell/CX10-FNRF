@@ -35,7 +35,7 @@
 #include "config.h"
 
 #define RF_BIND_CHANNEL      0x02      // Stock TX fixed frequency
-#define PAYLOADSIZE       19          // Protocol packet size
+#define PAYLOADSIZE          19          // Protocol packet size
 
 extern uint8_t failsave;
 bool bind = false;
@@ -49,6 +49,14 @@ const char demod_cal[5] = {0x0B, 0xDF, 0xC4, 0xA7, 0x03};
 const char rf_cal[7] = {0xC9, 0x9A, 0xB0, 0x61, 0xBB, 0xAB, 0x9C};
 const char bb_cal[5] = {0x4C, 0x84, 0x67, 0x9C, 0x20};
 static char rf_addr_cmnd[5];
+
+
+#define CX10_NUM_RF_CHANNELS    4
+static uint8_t CX10_txid[4];
+static uint8_t CX10_freq[4]; // frequency hopping table
+static uint8_t CX10_current_chan = 0;
+
+
 
 bool flashstate = false;
 uint32_t flashtime;
@@ -114,6 +122,15 @@ void init_XN297() {
             for(int i=1; i<5; i++) {
                 txreply[i] = rxbuffer[i];
                 txreply2[i] = rxbuffer[i];
+                
+                // Set transmitter ID according to packet,
+                // this will be used for frequency hopping and binding
+                CX10_txid[i-1] = rxbuffer[i];
+                
+                
+               
+                
+                
             }
         }
       }
@@ -211,11 +228,20 @@ void init_XN297() {
       RADIO_DIS_CE();
 
       // back to read mode
+      
+      // Confiure frequency hopping table:
+       CX10_freq[0] = (CX10_txid[0] & 0x0F) + 0x03;
+       CX10_freq[1] = (CX10_txid[0] >> 4) + 0x16;
+       CX10_freq[2] = (CX10_txid[1] & 0x0F) + 0x2D;
+       CX10_freq[3] = (CX10_txid[1] >> 4) + 0x40;
+
+
+
       nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_CRCO | NRF24_PWR_UP | NRF24_PRIM_RX));
 
       nrfFlushRx();
       nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);
-      nrfWrite1Reg(REG_RF_CH, 0x02); // Channel 0x02
+      nrfWrite1Reg(REG_RF_CH, CX10_freq[CX10_current_chan++]); // Channel 0x02
 
       delayMicroseconds(300);
       RADIO_EN_CE();
@@ -386,6 +412,9 @@ void get_XN297_RFRXDatas() {
       GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDon);
     // Read the latest command to the buffer
     nrfReadRX(rxbuffer, PAYLOADSIZE);
+      
+       CX10_current_chan %= CX10_NUM_RF_CHANNELS;
+       nrfWrite1Reg(REG_RF_CH, CX10_freq[CX10_current_chan++]);
     
     // Flush the buffer and clear interrupt 
     nrfFlushRx();
