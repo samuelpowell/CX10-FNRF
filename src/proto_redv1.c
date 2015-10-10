@@ -25,7 +25,7 @@ bool flashstate = false;
 uint32_t flashtime;
 
 // Configure the nrf24/Beken 2423 and bind
-void init_RFRX() {
+void init_rf() {
   
   // Initialise SPI, clocks, etc.
   nrfInit();
@@ -91,6 +91,12 @@ void init_RFRX() {
   // Flush the tranmit and receive buffer
   nrfFlushRx();
   nrfFlushTx();
+  
+  
+}
+
+
+void bind_rf() {
 
   // Set device to bind address
   nrfWriteReg( REG_RX_ADDR_P0, (char *) rf_addr_bind, 5);
@@ -154,7 +160,7 @@ void init_RFRX() {
 
 
 // Place RF command data in RXcommand variable, process AUX commands
-void get_RFRXDatas() {
+void rx_rf() {
     
   // If a new packet exists in the buffer
   if(nrfGetStatus() & 0x40)

@@ -115,13 +115,9 @@ int main(void){
 
 	
 	// Initialise the RF RX and bind
-    #ifdef RF_PROTO_REDV1
-    init_RFRX();
-	#endif
+    init_rf();
+    bind_rf();
     
-    #ifdef RF_PROTO_BLUE
-    init_XN297();
-    #endif
 	
 	while(1){
 		static uint32_t last_Time = 0;
@@ -142,14 +138,9 @@ int main(void){
 			//collect datas
 			ReadMPU();
 			
+            rx_rf();
 			
-            #ifdef RF_PROTO_BLUE
-            get_XN297_RFRXDatas();
-            #endif
-			
-			#ifdef RF_PROTO_REDV1
-			get_RFRXDatas();
-			#endif
+           
 			
 			// get setpoint
 			for(i=0;i<3;i++){

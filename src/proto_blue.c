@@ -44,14 +44,10 @@ static char txbuffer[19] = {0xAA,                      // Fixed
 uint32_t flashtime;
 
 // Configure the nrf24/Beken 2423 and bind
-void init_XN297() {
+void init_rf(){
     
     // Initialise SPI, clocks, etc.
     nrfInit();
-    
-    // Set RX/TX address
-    nrfWriteReg(REG_RX_ADDR_P0, (char *) rf_addr_bind, 5);
-    nrfWriteReg(REG_TX_ADDR, (char *) rf_addr_bind, 5);
     
     // Strange settings specific for xn297
     nrfWriteReg(REG_DEMOD_CAL, (char*) demod_cal, 5 );
@@ -76,10 +72,18 @@ void init_XN297() {
     nrfWrite1Reg(REG_DYNPD, 0x00);                  // Disable dynamic payload
     nrfWrite1Reg(REG_FEATURE, 0x00);                // Disable features (ack stuff)
     
+
+}
+
+void bind_rf() {
+    
+    // Set RX/TX address
+    nrfWriteReg(REG_RX_ADDR_P0, (char *) rf_addr_bind, 5);
+    nrfWriteReg(REG_TX_ADDR, (char *) rf_addr_bind, 5);
+    
     // Power up, set RF channel
     nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_CRCO | NRF24_PWR_UP | NRF24_PRIM_RX));
     nrfWrite1Reg(REG_RF_CH, RF_BIND_CHANNEL); // Channel 0x02
-
     
     while(!bind) {
         
@@ -197,7 +201,7 @@ void init_XN297() {
 
 
 // Place RF command data in RXcommand variable, process AUX commands
-void get_XN297_RFRXDatas() {
+void rx_rf() {
     
     // If a new packet exists in the buffer
     if(nrfGetStatus() & 0x40)
