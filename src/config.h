@@ -144,5 +144,5 @@ extern int16_t GyroXYZ[3];
 extern int16_t ACCXYZ[3];
 extern int16_t I2C_Errors;
 extern uint16_t calibGyroDone;
-extern uint8_t failsave;
+extern uint8_t failsafe;
 extern int16_t angle[3];

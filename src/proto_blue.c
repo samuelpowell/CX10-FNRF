@@ -16,7 +16,7 @@
 #define CX10_NUM_RF_CHANNELS    4
 
 // External definitions
-extern uint8_t failsave;
+extern uint8_t failsafe;
 extern int16_t RXcommands[6];
 
 // Constant data
@@ -206,16 +206,16 @@ void rx_rf() {
     // If a new packet exists in the buffer
     if(nrfGetStatus() & 0x40)
     {
-        GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDon);
         // Read the latest command to the buffer
         nrfReadRX(rxbuffer, PAYLOADSIZE);
-        
-        CX10_current_chan %= CX10_NUM_RF_CHANNELS;
-        nrfWrite1Reg(REG_RF_CH, CX10_freq[CX10_current_chan++]);
         
         // Flush the buffer and clear interrupt
         nrfFlushRx();
         nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);
+        
+        // Frequency hop
+        CX10_current_chan %= CX10_NUM_RF_CHANNELS;
+        nrfWrite1Reg(REG_RF_CH, CX10_freq[CX10_current_chan++]);
         
         // FC order: T   A   E   R   A1   A2
         // RF order: T    R   ?   E   A     Et    At   F   ?
@@ -247,7 +247,7 @@ void rx_rf() {
          }*/
         
         // Since data has been received, reset failsafe counter
-        failsave = 0;
+        failsafe = 0;
     }
     //delayMicroseconds(1000);
     GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDoff);

@@ -38,7 +38,7 @@ int16_t ACCXYZ[3] = {0,0,0};
 int16_t angle[3] = {0,0,0};
 int16_t I2C_Errors = 0;
 uint16_t calibGyroDone = 500;
-uint8_t failsave = 100;
+uint8_t failsafe = 100;
 
 
 uint8_t mode = 0;
@@ -181,7 +181,7 @@ int main(void){
 				
 			// Arm with Aux 1
             if(RXcommands[4] > 150){
-				if(Armed == 0 && OkToArm == 250 &&  failsave < 10 && RXcommands[0] <= 150){
+				if(Armed == 0 && OkToArm == 250 &&  failsafe < 10 && RXcommands[0] <= 150){
 					Armed = 1;
 					GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDon);
 				}
@@ -190,7 +190,7 @@ int main(void){
 					Armed = 0; 
 					GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDoff);
 				}
-				if(OkToArm < 250 &&  failsave < 10) OkToArm++;
+				if(OkToArm < 250 &&  failsafe < 10) OkToArm++;
             }
 
 			
@@ -208,7 +208,7 @@ int main(void){
 			
 			// write Motors
 			
-			if(failsave > 10) {
+			if(failsafe > 10) {
 				RXcommands[0] = 0; 		// fall down
 				RXcommands[4] = -500; // Disarm
 			}
@@ -231,11 +231,11 @@ int main(void){
             TIM1->CCR1 = constrain(MIX(+1,+1,+1),motorMin,motorMax); // rear left
 			#endif
             
-		}else failsave = 100; 
+		}else failsafe = 100; 
 
 		ADC_StartOfConversion(ADC1);
 		if(millis()-last_Time > 100){ // 10Hz
-			failsave++; // RX should send with ~50Hz so it should not be higher then 10 as long as there is a good signal
+			failsafe++; // RX should send with ~50Hz so it should not be higher then 10 as long as there is a good signal
 			last_Time = millis(); 
 			
 			TelMtoSend = 15;

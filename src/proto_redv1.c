@@ -13,7 +13,7 @@
 #define RF_CHANNEL      0x3C      // Stock TX fixed frequency
 #define PAYLOADSIZE       9          // Protocol packet size
 
-extern uint8_t failsave;
+extern uint8_t failsafe;
 bool bind = false;
 extern int16_t RXcommands[6];
 
@@ -189,7 +189,7 @@ void rx_rf() {
     }
         
     // Since data has been received, reset failsafe counter
-    failsave = 0;
+    failsafe = 0;
   }
 
 }
