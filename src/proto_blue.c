@@ -203,6 +203,9 @@ void bind_rf() {
 // Place RF command data in RXcommand variable, process AUX commands
 void rx_rf() {
     
+    float ratemul;
+    uint16_t throttle, ailerons, rudder, elevator, mode;
+    
     // If a new packet exists in the buffer
     if(nrfGetStatus() & 0x40)
     {
@@ -219,38 +222,48 @@ void rx_rf() {
         
         // FC order: T   A   E   R   A1   A2
         // RF order: T    R   ?   E   A     Et    At   F   ?
+      
+        // PPM firmware expects a range of 1000, TX range is 1000 (1000-3000), mid-stick is 1500.
+        throttle = (uint16_t)rxbuffer[14] << 8 | (uint16_t)rxbuffer[13];
+        ailerons = (uint16_t)rxbuffer[10] << 8 | (uint16_t)rxbuffer[9];
+        elevator = (uint16_t)rxbuffer[12] << 8 | (uint16_t)rxbuffer[11];
+        rudder   = (uint16_t)(rxbuffer[16] & 0x0F) << 8 | (uint16_t)rxbuffer[15];
+        mode     = (uint8_t)rxbuffer[17];
         
-        // PPM firmware expects a range of 1000, TX range is 0xFF (max rate), mid-stick is 0x40,
-        // BS twice leads to a range of 1020, which is close enough for now.
-        uint16_t throttle = (uint16_t)rxbuffer[14] << 8 | (uint16_t)rxbuffer[13];
-        uint16_t ailerons = (uint16_t)rxbuffer[10] << 8 | (uint16_t)rxbuffer[9];
-        uint16_t elevator = (uint16_t)rxbuffer[12] << 8 | (uint16_t)rxbuffer[11];
-        uint16_t rudder = (uint16_t)rxbuffer[16] << 8 | (uint16_t)rxbuffer[15];
-        uint8_t mode = (uint8_t)rxbuffer[17];
-        RXcommands[0] = constrain(throttle-969, 0, 1000);
+        RXcommands[0] = constrain(throttle-1000, 0, 1000);
         RXcommands[1] = constrain((int16_t)ailerons-1500, -500, 500);
         RXcommands[2] = constrain((int16_t)elevator-1500, -500, 500);
         RXcommands[3] = constrain((int16_t)rudder-1500, -500, 500);
-        if (mode == 0x01) {
-            RXcommands[4] = 200;
-        } else {
-            RXcommands[4] = -200;
+        
+         // Forward flip sets AUX1 high, backwards flip sets AUX1 low
+        if( rxbuffer[16] & 0x10 )
+        {
+         if(RXcommands[2] >  450) RXcommands[4] = 500;
+         if(RXcommands[2] < -450) RXcommands[4] = -500;
         }
-        //RXcommands[1] = constrain((((int16_t)rxbuffer[4])<<2) - 512, -500, 500);
-        //RXcommands[2] = constrain((((int16_t)rxbuffer[3])<<2) - 512, -500, 500);
-        //RXcommands[3] = constrain((((int16_t)rxbuffer[1])<<2) - 512, -500, 500);
         
-        // Forward flip sets AUX1 high, backwards flip sets AUX1 low
-        /*if( rxbuffer[7] & 0x0F ) {
-         if((uint8_t) rxbuffer[3] > 0xF0) RXcommands[4] = 500;
-         if((uint8_t) rxbuffer[3] < 0x0F) RXcommands[4] = -500;
-         }*/
+        // Implement rates to match CX10 RED
+        switch(mode)
+        {
+            case 0x00:
+                ratemul = 0.33f;
+                break;
+            case 0x01:
+                ratemul = 0.66f;
+                break;
+            default:
+                ratemul = 1.0f;
+        }
         
+  
+        for(int i = 1; i < 4; i++)
+        {
+            RXcommands[i] *= ratemul;
+        }
+       
         // Since data has been received, reset failsafe counter
         failsafe = 0;
     }
-    //delayMicroseconds(1000);
-    GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDoff);
     
 }
 
