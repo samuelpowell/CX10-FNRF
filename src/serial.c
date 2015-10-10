@@ -1,3 +1,11 @@
+// serial.c
+// 
+// This file is part of the CX10_fnrf project, released under the 
+// GNU General Public License, see LICENSE.md for further details.
+//
+// Copyright © 	2015 Samuel Powell
+//							2014 Felix Niessen
+
 #include "config.h"
 
 #if defined(SERIAL_ACTIVE)

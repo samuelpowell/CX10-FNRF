@@ -1,20 +1,11 @@
-/*
-	This file is part of STM32F05x brushed Copter FW
-	Copyright © 2014 Felix Niessen ( felix.niessen@googlemail.com )
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	any later version.
+// timer.c
+// 
+// This file is part of the CX10_fnrf project, released under the 
+// GNU General Public License, see LICENSE.md for further details.
+//
+// Copyright © 	2015 Samuel Powell
+//							2014 Felix Niessen
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
 #include "config.h"
 
 

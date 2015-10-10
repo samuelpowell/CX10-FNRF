@@ -1,54 +1,12 @@
-/*  Cheerson CX-10 integrated RF rate mode firmware.
-     - NRF24 Radio driver.
-
-    This source is mostly dervived from the Crazyflie control firmware
-    whose original GPLv3 license is repeated below.
-
-    For more details see the Bitcraze website: http://www.bitcraze.se.
-
-    All original components are provided under the GPLv3:
-
-    Copyright (C) 2015, Samuel Powell.
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
- *    ||          ____  _ __                           
- * +------+      / __ )(_) /_______________ _____  ___ 
- * | 0xBC |     / __  / / __/ ___/ ___/ __ `/_  / / _ \
- * +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
- *  ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
- *
- * Crazyflie control firmware
- *
- * Copyright (C) 2011-2012 Bitcraze AB
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, in version 3.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
- * nrf24l01.c: nRF24L01(-p) PRX mode low level driver
- */
+// nrf24.c
+// 
+// This file is part of the CX10_fnrf project, released under the 
+// GNU General Public License, see LICENSE.md for further details.
+//
+// Copyright © 	2015 Samuel Powell
+//							2015 Goebish
+//							2015 Bart Slinger
+//							2014 Felix Niessen
 
 #include "config.h"
 
