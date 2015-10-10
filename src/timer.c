@@ -8,8 +8,6 @@
 
 #include "config.h"
 
-
-
 void init_Timer(){
 	
 	TIM_DeInit(TIM3);
@@ -31,7 +29,7 @@ void init_Timer(){
 	NVIC_Init(&NVIC_InitStructure);
 	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
 	
-	#if defined(CX_10_RED_BOARD)
+	#if defined(CX10_REDV1)
 	GPIO_InitTypeDef gpioinitTIM;
 	gpioinitTIM.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_8 | GPIO_Pin_11;
 	gpioinitTIM.GPIO_Mode = GPIO_Mode_AF;
@@ -85,7 +83,7 @@ void init_Timer(){
 	TIM_Cmd(TIM16, ENABLE); 
 	#endif 
 	
-	#if defined(CX_10_BLUE_BOARD)
+	#if defined(CX10_BLUE)
 	GPIO_InitTypeDef gpioinitTIM;
 	#if defined(FORCE_SERIAL)
 	gpioinitTIM.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_11;

@@ -231,8 +231,8 @@ void rx_rf() {
         mode     = (uint8_t)rxbuffer[17];
         
         RXcommands[0] = constrain(throttle-1000, 0, 1000);
-        RXcommands[1] = constrain((int16_t)ailerons-1500, -500, 500);
-        RXcommands[2] = constrain((int16_t)elevator-1500, -500, 500);
+        RXcommands[1] = -constrain((int16_t)ailerons-1500, -500, 500);
+        RXcommands[2] = -constrain((int16_t)elevator-1500, -500, 500);
         RXcommands[3] = constrain((int16_t)rudder-1500, -500, 500);
         
          // Forward flip sets AUX1 high, backwards flip sets AUX1 low

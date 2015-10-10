@@ -4,7 +4,7 @@
 // GNU General Public License, see LICENSE.md for further details.
 //
 // Copyright © 	2015 Samuel Powell
-//							2014 Felix Niessen
+//				2014 Felix Niessen
 
 #include "config.h"
 
@@ -13,10 +13,10 @@ extern int16_t LiPoVolt;
 void init_ADC(){
 	
 	GPIO_InitTypeDef gpioinitADC;
-	#if defined(CX_10_RED_BOARD)
+	#if defined(CX10_REDV1)
 	gpioinitADC.GPIO_Pin = GPIO_Pin_2;
 	#endif 
-	#if defined(CX_10_BLUE_BOARD)
+	#if defined(CX10_BLUE)
 	gpioinitADC.GPIO_Pin = GPIO_Pin_7; //-5
 	#endif
 	gpioinitADC.GPIO_Mode = GPIO_Mode_AN;
@@ -32,10 +32,10 @@ void init_ADC(){
 	ADC_InitStructure.ADC_ScanDirection = ADC_ScanDirection_Upward;
 	ADC_Init (ADC1, &ADC_InitStructure);
 	
-	#if defined(CX_10_RED_BOARD)
+	#if defined(CX10_REDV1)
 	ADC_ChannelConfig (ADC1, ADC_Channel_2, ADC_SampleTime_239_5Cycles);
 	#endif 
-	#if defined(CX_10_BLUE_BOARD)
+	#if defined(CX10_BLUE)
 	ADC_ChannelConfig (ADC1, ADC_Channel_7, ADC_SampleTime_239_5Cycles);
 	#endif
 	
@@ -58,10 +58,10 @@ void init_ADC(){
 void ADC1_COMP_IRQHandler(void){
 	if((uint32_t)(ADC1->ISR & ADC_IT_EOC) != (uint32_t)RESET){
 		ADC1->ISR = (uint32_t)ADC_IT_EOC; 
-		#if defined(CX_10_RED_BOARD)
+		#if defined(CX10_REDV1)
 		LiPoVolt      = ((ADC1->DR)<<7)/954;
 		#endif
-		#if defined(CX_10_BLUE_BOARD)
+		#if defined(CX10_BLUE)
 		LiPoVolt      = ((ADC1->DR)<<7)/153;
 		#endif
 	}
