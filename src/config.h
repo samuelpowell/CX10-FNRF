@@ -123,6 +123,7 @@
 #include "timer.h"
 #include "serial.h"
 #include "nrf24.h"
+#include "blinker.h"
 
 #if defined(RF_PROTO_BLUE)
     #include "proto_blue.h"

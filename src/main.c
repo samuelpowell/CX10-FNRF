@@ -59,7 +59,7 @@ void TIM3_IRQHandler(void){
 		T3OV++;
 	}
 }
-
+ 
 
 uint32_t micros(){
 	return (T3OV<<16)+(TIM3->CNT);
@@ -75,16 +75,18 @@ void delayMicroseconds(uint32_t us){
 }
 
 
+
 int main(void){
 	SystemInit();
 
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1 | RCC_APB1Periph_TIM2 | RCC_APB1Periph_TIM3, ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1 | RCC_APB2Periph_USART1 | RCC_APB2Periph_ADC1 | RCC_APB2Periph_TIM16 | RCC_APB2Periph_TIM1 | RCC_APB2Periph_SYSCFG, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1 | RCC_APB2Periph_USART1 | RCC_APB2Periph_TIM17 | RCC_APB2Periph_ADC1 | RCC_APB2Periph_TIM16 | RCC_APB2Periph_TIM1 | RCC_APB2Periph_SYSCFG, ENABLE);
 	
 	//init
 	init_Timer();
 	init_ADC();
+    init_blinker();
     
 	#if defined(SERIAL_ACTIVE)
 	init_UART(115200);
@@ -112,12 +114,12 @@ int main(void){
 		GPIO_Init(GPIOA, &LEDGPIOinit);	
 		GPIO_WriteBit(GPIOA, GPIO_Pin_5, Bit_SET);
 	#endif
-
-	
+    
 	// Initialise the RF RX and bind
+    set_blink_style(BLINKER_BIND);
     init_rf();
     bind_rf();
-    
+    set_blink_style(BLINKER_DISARM);
 	
 	while(1){
 		static uint32_t last_Time = 0;
@@ -130,6 +132,8 @@ int main(void){
 		static int16_t LastDt[3];
 		uint8_t i = 0;
 		
+      
+
 		uint32_t CycleStart = micros();
 		
 		if(calibGyroDone > 0 && CalibDelay == 0) ReadMPU();
@@ -183,12 +187,12 @@ int main(void){
             if(RXcommands[4] > 150){
 				if(Armed == 0 && OkToArm == 250 &&  failsafe < 10 && RXcommands[0] <= 150){
 					Armed = 1;
-					GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDon);
+					set_blink_style(BLINKER_ON);
 				}
 			}else{
 				if(Armed == 1){ 
 					Armed = 0; 
-					GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDoff);
+					set_blink_style(BLINKER_DISARM);
 				}
 				if(OkToArm < 250 &&  failsafe < 10) OkToArm++;
             }
@@ -245,20 +249,17 @@ int main(void){
 				else GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDoff);	
 				CalibDelay--;
 			}
-			static uint8_t blinker = 0;
-			if(LiPoEmptyWaring == 350){
-				blinker++;
-				if(blinker%2){
-					GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDoff);
-					GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDon);
-				}else{
-					GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDon);
-                    GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDoff);
-				}
+			
+			if(LiPoEmptyWaring == 350)
+            {
+                set_blink_style(BLINKER_LOWBAT);
+                
 				#if defined(CX10_BLUE) // turn off to save the lipo
 				if(LiPoVolt < 250) GPIO_WriteBit(GPIOA, GPIO_Pin_5, Bit_RESET);
 				#endif
-			}else if(LiPoVolt < 300) LiPoEmptyWaring++;
+                
+			}
+            else if(LiPoVolt < 300) LiPoEmptyWaring++;
 			else if(LiPoEmptyWaring > 10) LiPoEmptyWaring -= 10; 
 		}
 		#if defined(SERIAL_ACTIVE)

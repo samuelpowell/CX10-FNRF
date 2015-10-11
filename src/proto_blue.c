@@ -29,7 +29,6 @@ const char bb_cal[5]        = {0x4C, 0x84, 0x67, 0x9C, 0x20};
 
 // Globals
 bool bind = false;
-bool flashstate = false;
 
 static uint8_t CX10_freq[4]; // frequency hopping table
 static uint8_t CX10_current_chan = 0;
@@ -93,7 +92,7 @@ void bind_rf() {
         
         // Wait until we receive a data packet, flashing alternately
         RADIO_EN_CE();
-        while(!(nrfGetStatus() & 0x40))  bindflasher(500);
+        while(!(nrfGetStatus() & 0x40));
         
         // Read FIFO until there is no more data
         while (!(nrfRead1Reg(REG_FIFO_STATUS) & 0x01))
@@ -136,7 +135,7 @@ void bind_rf() {
         
         // Wait until we receive a data packet, flashing alternately
         RADIO_EN_CE();
-        while(!(nrfGetStatus() & 0x40))  bindflasher(500);
+        while(!(nrfGetStatus() & 0x40));
         
         // Read FIFO until there is no more data
         while (!(nrfRead1Reg(REG_FIFO_STATUS) & 0x01))
@@ -191,9 +190,6 @@ void bind_rf() {
         delayMicroseconds(300);
         RADIO_EN_CE();
     
-        // Turn off LEDs
-        GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDoff);
-        GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDoff);
     }
     
 }
@@ -263,34 +259,6 @@ void rx_rf() {
        
         // Since data has been received, reset failsafe counter
         failsafe = 0;
-    }
-    
-}
-
-
-void bindflasher(uint32_t rate) {
-    
-    uint32_t millitime = micros()/1000;
-    
-    if(millitime-flashtime > rate)
-    {
-        flashtime = millitime;
-        switch(flashstate)
-        {
-                
-            case true:
-                GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDon);  
-                GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDoff);  
-                flashstate = false;
-                break;
-                
-            case false:
-                GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDoff);  
-                GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDon);
-                flashstate = true;
-                break;
-                
-        }
     }
     
 }

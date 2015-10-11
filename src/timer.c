@@ -4,16 +4,28 @@
 // GNU General Public License, see LICENSE.md for further details.
 //
 // Copyright © 	2015 Samuel Powell
-//							2014 Felix Niessen
+//				2014 Felix Niessen
 
 #include "config.h"
 
+// Update_event = TIM_CLK/((PSC + 1)*(ARR + 1)*(RCR + 1))
+//
+// TIM_CLK = timer clock input 
+// PSC = 16-bit prescaler register
+// ARR = 16/32-bit Autoreload register
+// RCR = 16-bit repetition counter
+//
+// PSC=47 => 1us
+// PSC=47999 => 1ms (1khz)
+// Clockdiv 4 => 4ms (1khz)
+
 void init_Timer(){
+    
+    TIM_TimeBaseInitTypeDef timerbaseinit;
+    NVIC_InitTypeDef NVIC_InitStructure;
 	
+    // Timer 3 provides a system timebase with 1µs period.
 	TIM_DeInit(TIM3);
-	
-	// 16bit tim 3 for time measurement
-	TIM_TimeBaseInitTypeDef timerbaseinit;
 	timerbaseinit.TIM_Prescaler = 47; // ticks with 1µs
 	timerbaseinit.TIM_Period = 0xFFFF;
 	timerbaseinit.TIM_ClockDivision = TIM_CKD_DIV1;
@@ -22,15 +34,19 @@ void init_Timer(){
 	TIM_TimeBaseInit(TIM3, &timerbaseinit);
 	TIM_Cmd(TIM3, ENABLE); 
 	
-	NVIC_InitTypeDef NVIC_InitStructure;
 	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
-	
+    
+    
+    
+    
+    
+	// Configure motor drive GPIO and associated timers for PWM
 	#if defined(CX10_REDV1)
-	GPIO_InitTypeDef gpioinitTIM;
+    GPIO_InitTypeDef gpioinitTIM;
 	gpioinitTIM.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_8 | GPIO_Pin_11;
 	gpioinitTIM.GPIO_Mode = GPIO_Mode_AF;
 	gpioinitTIM.GPIO_Speed = GPIO_Speed_50MHz;
