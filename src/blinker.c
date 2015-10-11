@@ -3,7 +3,7 @@
 // This file is part of the CX10_fnrf project, released under the 
 // GNU General Public License, see LICENSE.md for further details.
 //
-// Copyright © 	2015 Samuel Powell
+// Copyright ï¿½ 	2015 Samuel Powell
 
 // Configure a timer to provide a low-frequency interrupt, used to
 // drive selectable illumination patterns on the LEDs.
@@ -98,6 +98,18 @@ void init_blinker(void) {
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 	TIM_ITConfig(TIM17, TIM_IT_Update, ENABLE);
+    
+    // Configure GPIO
+    GPIO_InitTypeDef LEDGPIOinit;
+    LEDGPIOinit.GPIO_Pin = LED1_BIT;
+    LEDGPIOinit.GPIO_Mode = GPIO_Mode_OUT;
+    LEDGPIOinit.GPIO_Speed = GPIO_Speed_50MHz;
+    LEDGPIOinit.GPIO_OType = GPIO_OType_PP;
+    LEDGPIOinit.GPIO_PuPd   = GPIO_PuPd_NOPULL;
+    GPIO_Init(LED1_PORT, &LEDGPIOinit);
+    
+    LEDGPIOinit.GPIO_Pin = LED2_BIT;
+    GPIO_Init(LED2_PORT, &LEDGPIOinit);
     
 }
 
