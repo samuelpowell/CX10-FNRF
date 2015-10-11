@@ -118,12 +118,13 @@
     
 // Application headers
 #include "adc.h"
-#include "main.h"
 #include "MPU6050.h"
 #include "timer.h"
 #include "serial.h"
 #include "nrf24.h"
 #include "blinker.h"
+#include "motorpwm.h"
+#include "timer.h"
 
 #if defined(RF_PROTO_BLUE)
     #include "proto_blue.h"
@@ -136,6 +137,8 @@
 // Preprocessor functions
 #define abs(x) ((x) > 0 ? (x) : -(x))
 #define constrain(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
+#define MIX(X,Y,Z) constrain(RXcommands[0],0,1000) + PIDdata[0]*X + PIDdata[1]*Y + PIDdata[2]*Z
+
 
 // Global variables
 extern int16_t RXcommands[6];

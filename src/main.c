@@ -3,7 +3,7 @@
 // This file is part of the CX10_fnrf project, released under the 
 // GNU General Public License, see LICENSE.md for further details.
 //
-// Copyright © 	2015 Samuel Powell
+// Copyright ï¿½ 	2015 Samuel Powell
 //							2015 Bart Slinger
 //							2014 Felix Niessen
 	
@@ -11,7 +11,7 @@
 
 static uint8_t TelMtoSend = 0;
 static uint16_t minCycleTime = 2000;
-static uint16_t T3OV = 0;
+
 static int8_t answerStayTime = 0;
 static uint16_t LiPoEmptyWaring = 0;
 uint8_t nx[2] = {'\n','\r'};
@@ -53,28 +53,6 @@ uint8_t RPY_Rate[3] = {RC_ROLL_RATE,RC_PITCH_RATE,RC_YAW_RATE};
 int16_t Imax[3] = {18000,18000,5000};
 
 
-void TIM3_IRQHandler(void){
-	if(TIM3->SR & TIM_IT_Update){
-		TIM3->SR = (uint16_t)~TIM_IT_Update;
-		T3OV++;
-	}
-}
- 
-
-uint32_t micros(){
-	return (T3OV<<16)+(TIM3->CNT);
-}
-
-uint32_t millis(){
-	return (micros()/1000);
-}
-
-void delayMicroseconds(uint32_t us){
-	uint32_t now = micros();
-	while (micros() - now < us);
-}
-
-
 
 int main(void){
 	SystemInit();
@@ -84,9 +62,10 @@ int main(void){
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1 | RCC_APB2Periph_USART1 | RCC_APB2Periph_TIM17 | RCC_APB2Periph_ADC1 | RCC_APB2Periph_TIM16 | RCC_APB2Periph_TIM1 | RCC_APB2Periph_SYSCFG, ENABLE);
 	
 	//init
-	init_Timer();
+	init_timer();
 	init_ADC();
     init_blinker();
+    init_motorpwm();
     
 	#if defined(SERIAL_ACTIVE)
 	init_UART(115200);
@@ -146,6 +125,13 @@ int main(void){
 			
            
 			
+			if(failsafe > 10) {
+				RXcommands[0] = 0; 		// fall down
+				RXcommands[4] = -500; // Disarm
+			}
+			
+			
+			
 			// get setpoint
 			for(i=0;i<3;i++){
 				RPY_useRates[i] = 100-(uint32_t)((abs(RXcommands[i+1])*2)*RPY_Rate[i])/1000;
@@ -183,57 +169,31 @@ int main(void){
 				}				
 			}
 				
-			// Arm with Aux 1
-            if(RXcommands[4] > 150){
-				if(Armed == 0 && OkToArm == 250 &&  failsafe < 10 && RXcommands[0] <= 150){
-					Armed = 1;
-					set_blink_style(BLINKER_ON);
-				}
-			}else{
-				if(Armed == 1){ 
-					Armed = 0; 
-					set_blink_style(BLINKER_DISARM);
-				}
-				if(OkToArm < 250 &&  failsafe < 10) OkToArm++;
+			// Device is armed when AUX1 us high
+            if(RXcommands[4] > 150)
+            {
+                if(Armed == 0 && OkToArm == 250 &&  failsafe < 10 && RXcommands[0] <= 150){
+                    Armed = 1;
+                    set_blink_style(BLINKER_ON);
+                }
+			}
+            else
+            {
+                if(Armed == 1){ 
+                    Armed = 0; 
+                    set_blink_style(BLINKER_DISARM);
+                }
+                if(OkToArm < 250 &&  failsafe < 10) OkToArm++;
             }
 
 			
-			uint16_t motorMax = 0;
-			uint16_t motorMin = 0;
-			if(Armed){
-				if(RXcommands[0] < MIN_COMMAND) motorMax = 0;
-				else{
-					motorMax = 1000; 
-					motorMin = MIN_THROTTLE;
-				}
-			}
-			
-			#define MIX(X,Y,Z) constrain(RXcommands[0],0,1000) + PIDdata[0]*X + PIDdata[1]*Y + PIDdata[2]*Z
 			
 			// write Motors
+            set_motorpwm(PIDdata, Armed && (RXcommands[0] > MIN_COMMAND));
 			
-			if(failsafe > 10) {
-				RXcommands[0] = 0; 		// fall down
-				RXcommands[4] = -500; // Disarm
-			}
-			
-			#ifdef MOTOR_DISABLE
-				RXcommands[0] = 0;
-			#endif
-			
-			#if defined(CX10_REDV1)
-			TIM1->CCR1 = constrain(MIX(+1,-1,-1),motorMin,motorMax); // front left
-			TIM1->CCR4 = constrain(MIX(-1,-1,+1),motorMin,motorMax); // front right
-			TIM16->CCR1 = constrain(MIX(-1,+1,-1),motorMin,motorMax); // rear right
-			TIM2->CCR4 = constrain(MIX(+1,+1,+1),motorMin,motorMax); // rear left
-			#endif
-			
-			#if defined(CX10_BLUE)
-            TIM1->CCR4 = constrain(MIX(+1,-1,-1),motorMin,motorMax); // front left
-            TIM1->CCR3 = constrain(MIX(-1,-1,+1),motorMin,motorMax); // front right
-            TIM1->CCR2 = constrain(MIX(-1,+1,-1),motorMin,motorMax); // rear right
-            TIM1->CCR1 = constrain(MIX(+1,+1,+1),motorMin,motorMax); // rear left
-			#endif
+            
+            
+            
             
 		}else failsafe = 100; 
 

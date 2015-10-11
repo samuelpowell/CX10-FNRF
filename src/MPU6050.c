@@ -155,9 +155,9 @@ void init_MPU6050(){
 	I2C_Init(I2C1, &initI2C1);
 	I2C_Cmd(I2C1, ENABLE);	
 	
-	delayMicroseconds(5000); 
+	delay_micros(5000); 
 	I2C_WrReg(0x6B, 0x80);
-	delayMicroseconds(5000); 
+	delay_micros(5000); 
 	I2C_WrReg(0x6B, 0x03); 
 	I2C_WrReg(0x1A, 0); // LPF
 	I2C_WrReg(0x1B, 0x18);

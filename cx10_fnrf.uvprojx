@@ -422,6 +422,11 @@
               <FilePath>.\src\main.c</FilePath>
             </File>
             <File>
+              <FileName>blinker.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\blinker.c</FilePath>
+            </File>
+            <File>
               <FileName>MPU6050.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\MPU6050.c</FilePath>
@@ -465,6 +470,11 @@
               <FileName>proto_redv1.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\proto_redv1.c</FilePath>
+            </File>
+            <File>
+              <FileName>motorpwm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\motorpwm.c</FilePath>
             </File>
           </Files>
         </Group>

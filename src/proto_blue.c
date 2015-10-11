@@ -108,7 +108,7 @@ void bind_rf() {
         // Flush buffer and clear status
         nrfFlushRx();
         nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);
-        delayMicroseconds(3000);
+        delay_micros(3000);
         
         // STEP 2: Reply to bind packet with aircraft ID
         
@@ -119,9 +119,9 @@ void bind_rf() {
         nrfFlushTx();
         
         nrfSendTX(txbuffer, 19);
-        delayMicroseconds(150);
+        delay_micros(150);
         RADIO_EN_CE();
-        delayMicroseconds(6000);
+        delay_micros(6000);
         RADIO_DIS_CE();
         
         // STEP 3: Await bind packet with correct aircraft ID
@@ -131,7 +131,7 @@ void bind_rf() {
         nrfFlushRx();
         nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);
         nrfWrite1Reg(REG_RF_CH, RF_BIND_CHANNEL);
-        delayMicroseconds(300);
+        delay_micros(300);
         
         // Wait until we receive a data packet, flashing alternately
         RADIO_EN_CE();
@@ -158,7 +158,7 @@ void bind_rf() {
         // Flush buffer and clear status
         nrfFlushRx();
         nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);
-        delayMicroseconds(3000);
+        delay_micros(3000);
         
         // Configure for transmit
         nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_CRCO | NRF24_PWR_UP));
@@ -168,11 +168,11 @@ void bind_rf() {
         
         txbuffer[9] = bind;
         
-        delayMicroseconds(6000);
+        delay_micros(6000);
         nrfSendTX(txbuffer, 19);
-        delayMicroseconds(150);
+        delay_micros(150);
         RADIO_EN_CE();
-        delayMicroseconds(3000);
+        delay_micros(3000);
         RADIO_DIS_CE();
         
         // STEP 5: Set up frequency hopping table and move to data mode
@@ -187,7 +187,7 @@ void bind_rf() {
         nrfFlushRx();
         nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);
         nrfWrite1Reg(REG_RF_CH, CX10_freq[CX10_current_chan++]);
-        delayMicroseconds(300);
+        delay_micros(300);
         RADIO_EN_CE();
     
     }
