@@ -80,11 +80,7 @@ void init_motorpwm()
     
     #if defined(CX10_BLUE)
     
-    #if defined(FORCE_SERIAL)
-        gpioinitTIM.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_11;
-    #else
-        gpioinitTIM.GPIO_Pin = GPIO_Pin_8 |GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11;
-    #endif
+    gpioinitTIM.GPIO_Pin = GPIO_Pin_8 |GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11;
     gpioinitTIM.GPIO_Mode = GPIO_Mode_AF;
     gpioinitTIM.GPIO_Speed = GPIO_Speed_50MHz;
     gpioinitTIM.GPIO_OType = GPIO_OType_PP;
@@ -92,11 +88,10 @@ void init_motorpwm()
     GPIO_Init(GPIOA, &gpioinitTIM);
     
     GPIO_PinAFConfig(GPIOA, GPIO_PinSource8, GPIO_AF_2);
-    #if !defined(FORCE_SERIAL)
-        GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_2);
-        GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_2);
-    #endif
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_2);
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_2);
     GPIO_PinAFConfig(GPIOA, GPIO_PinSource11, GPIO_AF_2);
+    
     timerbaseinit.TIM_Prescaler = 1; // 24khz
     timerbaseinit.TIM_Period = MOTORPWM_DUTY_MAX;
     timerbaseinit.TIM_ClockDivision = TIM_CKD_DIV1;
