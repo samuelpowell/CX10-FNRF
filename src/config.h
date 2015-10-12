@@ -121,14 +121,7 @@
 #include "blinker.h"
 #include "motorpwm.h"
 #include "timer.h"
-
-#if defined(RF_PROTO_BLUE)
-    #include "proto_blue.h"
-#endif
-
-#if defined(RF_PROTO_REDV1)
-    #include "proto_redv1.h"
-#endif
+#include "rfproto.h"
 
 // Preprocessor functions
 #define abs(x) ((x) > 0 ? (x) : -(x))

@@ -457,19 +457,14 @@
               <FilePath>.\src\nrf24.c</FilePath>
             </File>
             <File>
-              <FileName>proto_blue.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\proto_blue.c</FilePath>
-            </File>
-            <File>
-              <FileName>proto_redv1.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\proto_redv1.c</FilePath>
-            </File>
-            <File>
               <FileName>motorpwm.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\motorpwm.c</FilePath>
+            </File>
+            <File>
+              <FileName>rfproto.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\rfproto.c</FilePath>
             </File>
           </Files>
         </Group>
