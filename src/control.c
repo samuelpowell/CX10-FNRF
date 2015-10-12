@@ -1,93 +1,10 @@
-// main.c
-//
-// This file is part of the CX10_fnrf project, released under the
-// GNU General Public License, see LICENSE.md for further details.
-//
-// Copyright � 	2015 Samuel Powell
-//              2015 Bart Slinger
-//              2014 Felix Niessen
-
-#include "config.h"
-
-int16_t LiPoVolt = 0;
-uint8_t failsafe = 100;
-uint8_t mode = 0;
-
-enum states { INIT, BIND, CALIBRATING, DISARMED, ARMED, ARMED_LOWBAT };
-
-int main(void)
+void control()
 {
-    uint32_t last_Time = 0;
-    int32_t lastError[3] = {0,0,0};
-    int32_t Isum[3] = {0,0,0};
-    int16_t RPY_useRates[3] = {0,0,0};
-    int16_t setpoint[3] = {0,0,0};
-    int16_t PIDdata[3] = {0,0,0};
-    int16_t LastDt[3];
-    uint16_t LiPoEmptyWaring = 0;
-    
-    int16_t RXcommands[6] = {0,500,500,500,-500,500};
-    
-    int16_t GyroXYZ[3] = {0,0,0};
-    int16_t ACCXYZ[3] = {0,0,0};
-    int16_t angle[3] = {0,0,0};
-    int16_t I2C_Errors = 0;
-    uint16_t calibGyroDone = 500;
-    
-    static const uint16_t RC_Rate = RC_RATE;
-    static const uint8_t RPY_Rate[3] = {RC_ROLL_RATE,RC_PITCH_RATE,RC_YAW_RATE};
-    static const int16_t Imax[3] = {18000,18000,5000};
-    static const uint8_t G_P[3] = {GYRO_P_ROLL,GYRO_P_PITCH,GYRO_P_YAW};
-    static const uint8_t G_I[3] = {GYRO_I_ROLL,GYRO_I_PITCH,GYRO_I_YAW};
-    static const uint8_t G_D[3] = {GYRO_D_ROLL,GYRO_D_PITCH,GYRO_D_YAW};
-    
-    static const uint16_t minCycleTime = 2000;
-    
-    static enum states state = INIT;
-    static enum states state_next = INIT;
-    
-    // Startup code calls SystemInit: system clock is configured 
-    
-    // Enable peripheral clocks    
-    RCC_AHBPeriphClockCmd( RCC_AHBPeriph_GPIOA
-                         | RCC_AHBPeriph_GPIOB, ENABLE);
-    
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1
-                         | RCC_APB1Periph_TIM2
-                         | RCC_APB1Periph_TIM3, ENABLE);
-    
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1 
-                         | RCC_APB2Periph_USART1
-                         | RCC_APB2Periph_TIM17 
-                         | RCC_APB2Periph_ADC1 
-                         | RCC_APB2Periph_TIM16 
-                         | RCC_APB2Periph_TIM1 
-                         | RCC_APB2Periph_SYSCFG, ENABLE);
-    
-    // Enable 3.3v LDO on blue board (held high by cap charge?)
-    #if defined(CX10_BLUE)
-    GPIO_InitTypeDef LEDGPIOinit;
-    LEDGPIOinit.GPIO_Pin = LED1_BIT;
-    LEDGPIOinit.GPIO_Mode = GPIO_Mode_OUT;
-    LEDGPIOinit.GPIO_Speed = GPIO_Speed_50MHz;
-    LEDGPIOinit.GPIO_OType = GPIO_OType_PP;
-    LEDGPIOinit.GPIO_PuPd   = GPIO_PuPd_NOPULL;
-    GPIO_Init(LED1_PORT, &LEDGPIOinit);
-    
-    LEDGPIOinit.GPIO_Pin = GPIO_Pin_5;
-    GPIO_Init(GPIOA, &LEDGPIOinit);
-    GPIO_WriteBit(GPIOA, GPIO_Pin_5, Bit_SET);
-    #endif
-    
-    // Initialise peripherals
-    init_timer();
-    init_ADC();
-    init_blinker();
-    init_motorpwm();
-    init_MPU6050(&I2C_Errors);
-    init_rf();
-    
-    // Set first state transition
+	
+	
+	
+	
+	// Set next state transition
     state_next = BIND;
     
     // Start main FC loop
@@ -182,7 +99,7 @@ int main(void)
                 }
                 
                 // Set motor duty cycle
-                set_motorpwm(PIDdata, RXcommands, (state_next == ARMED) && (RXcommands[0] > MIN_THROTTLE));
+                set_motorpwm(PIDdata, RXcommands, (state_next == ARMED) && (RXcommands[0] > MIN_COMMAND));
                 
                 // Sample the battery voltage
                 ADC_StartOfConversion(ADC1);
@@ -212,4 +129,4 @@ int main(void)
            
     }
 }
-
+	
