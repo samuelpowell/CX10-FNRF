@@ -37,7 +37,7 @@ int16_t Imax[3] = {18000,18000,5000};
 
 int main(void)
 {
-    SystemInit();
+    // SystemInit is called by startup code, device and clocks are configured.
     
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1 | RCC_APB1Periph_TIM2 | RCC_APB1Periph_TIM3, ENABLE);
