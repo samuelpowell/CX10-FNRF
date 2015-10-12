@@ -429,11 +429,10 @@ ARM Macro Assembler    Page 7
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M0 --apcs=interw
 ork --depend=.\obj\startup_stm32f0xx_mdk_arm.d -o.\obj\startup_stm32f0xx_mdk_ar
-m.o -I"\vmware-host\Shared Folders\Documents\cx10_fnrf\RTE" -IC:\Keil_v5\ARM\PA
-CK\Keil\STM32F0xx_DFP\1.4.0\Device\Include -IC:\Keil_v5\ARM\CMSIS\Include --pre
-define="__EVAL SETA 1" --predefine="__UVISION_VERSION SETA 516" --predefine="ST
-M32F031 SETA 1" --list=.\listings\startup_stm32f0xx_mdk_arm.lst startup\startup
-_stm32f0xx_mdk_arm.s
+m.o -IZ:\Documents\cx10_fnrf\RTE -IC:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.4.0
+\Device\Include -IC:\Keil_v5\ARM\CMSIS\Include --predefine="__EVAL SETA 1" --pr
+edefine="__UVISION_VERSION SETA 516" --predefine="STM32F031 SETA 1" --list=.\li
+stings\startup_stm32f0xx_mdk_arm.lst startup\startup_stm32f0xx_mdk_arm.s
 
 
 
