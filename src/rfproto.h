@@ -1,4 +1,4 @@
-// proto_blue.c
+// rfproto.h
 //
 // This file is part of the CX10_fnrf project, released under the
 // GNU General Public License, see LICENSE.md for further details.
@@ -9,5 +9,5 @@
 
 void init_rf(void);
 void bind_rf(void);
-void rx_rf(void);
-void bindflasher(uint32_t rate);
+void rx_rf(int16_t *RXcommands);
+
