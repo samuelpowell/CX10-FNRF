@@ -9,10 +9,8 @@
 
 #include "config.h"
 
-static uint8_t TelMtoSend = 0;
 static uint16_t minCycleTime = 2000;
 
-static int8_t answerStayTime = 0;
 static uint16_t LiPoEmptyWaring = 0;
 
 int16_t RXcommands[6] = {0,500,500,500,-500,500};
@@ -171,9 +169,7 @@ int main(void)
         {
             failsafe++; // RX should send with ~50Hz so it should not be higher then 10 as long as there is a good signal
             last_Time = millis();
-            
-            TelMtoSend = 15;
-            if(answerStayTime > 0) answerStayTime--;
+
             if(CalibDelay > 0){
                 if(CalibDelay%2)GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDon);
                 else GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDoff);

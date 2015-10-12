@@ -105,8 +105,7 @@ void bind_rf() {
   
   while(!bind) {
     
-    // Wait until we receive a data packet, flashing alternately
-		flashtime = micros()/1000;
+    // Wait until we receive a data packet
     while(!(nrfGetStatus() & 0x40));
   
     
@@ -142,8 +141,7 @@ void bind_rf() {
         nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);
         
         // Wait until we receive data on the command address
-				flashtime = micros()/1000;
-        while(!(nrfGetStatus() & 0x40)) bindflasher(250);
+        while(!(nrfGetStatus() & 0x40));
         
         bind = true;
 				
