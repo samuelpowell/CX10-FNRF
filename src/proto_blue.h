@@ -9,5 +9,5 @@
 
 void init_rf(void);
 void bind_rf(void);
-void rx_rf(void);
-void bindflasher(uint32_t rate);
+void rx_rf(int16_t *RXcommands);
+

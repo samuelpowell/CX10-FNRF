@@ -15,7 +15,9 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-void ReadMPU(void);
-void I2C_WrReg(uint8_t Reg, uint8_t Val);
-void init_MPU6050(void);
+void ReadMPU(int16_t *GyroXYZ, int16_t *ACCXYZ, int16_t *angle, int16_t *I2C_Errors, uint16_t *calibGyroDone);
+void I2C_WrReg(uint8_t Reg, uint8_t Val, int16_t *I2C_Errors);
+void init_MPU6050(int16_t *I2C_Errors);
 long atan2_c(long x , long y);
+
+

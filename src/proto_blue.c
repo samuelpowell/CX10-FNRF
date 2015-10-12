@@ -197,7 +197,7 @@ void bind_rf() {
 
 
 // Place RF command data in RXcommand variable, process AUX commands
-void rx_rf() {
+void rx_rf(int16_t *RXcommands) {
     
     float ratemul;
     uint16_t throttle, ailerons, rudder, elevator, mode;

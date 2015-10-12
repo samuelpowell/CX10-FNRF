@@ -137,7 +137,7 @@
 
 
 // Global variables
-extern int16_t RXcommands[6];
+
 extern int8_t Armed;
 extern int16_t LiPoVolt;
 extern int16_t GyroXYZ[3];

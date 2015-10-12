@@ -123,7 +123,7 @@ void init_motorpwm()
 }
 
 // Set duty cycle of motor outputs (if ENabled)
-void set_motorpwm(int16_t *PIDdata, bool EN)
+void set_motorpwm(int16_t *RXcommands, int16_t *PIDdata, bool EN)
 {
     
     #if defined(CX10_REDV1)

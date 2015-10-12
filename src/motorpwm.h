@@ -7,4 +7,4 @@
 //				2014 Felix Niessen
 
 void init_motorpwm(void);
-void set_motorpwm(int16_t *PIDdata, bool EN);
+void set_motorpwm(int16_t *PIDdata, int16_t *RXcommands, bool EN);

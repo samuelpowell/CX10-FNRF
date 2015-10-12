@@ -9,42 +9,43 @@
 
 #include "config.h"
 
-static const uint16_t minCycleTime = 2000;
-
-static const uint16_t RC_Rate = RC_RATE;
-static const uint8_t RPY_Rate[3] = {RC_ROLL_RATE,RC_PITCH_RATE,RC_YAW_RATE};
-static const int16_t Imax[3] = {18000,18000,5000};
-static const uint8_t G_P[3] = {GYRO_P_ROLL,GYRO_P_PITCH,GYRO_P_YAW};
-static const uint8_t G_I[3] = {GYRO_I_ROLL,GYRO_I_PITCH,GYRO_I_YAW};
-static const uint8_t G_D[3] = {GYRO_D_ROLL,GYRO_D_PITCH,GYRO_D_YAW};
-
-static uint16_t LiPoEmptyWaring = 0;
-
-int16_t RXcommands[6] = {0,500,500,500,-500,500};
-int8_t Armed = 0;
 int16_t LiPoVolt = 0;
-int16_t GyroXYZ[3] = {0,0,0};
-int16_t ACCXYZ[3] = {0,0,0};
-int16_t angle[3] = {0,0,0};
-int16_t I2C_Errors = 0;
-uint16_t calibGyroDone = 500;
 uint8_t failsafe = 100;
-
 uint8_t mode = 0;
 
 enum states { INIT, BIND, CALIBRATING, DISARMED, ARMED, ARMED_LOWBAT };
 
 int main(void)
 {
-    static uint32_t last_Time = 0;
-    static uint8_t CalibDelay = 20;
-    static int32_t lastError[3] = {0,0,0};
-    static int32_t Isum[3] = {0,0,0};
-    static int16_t RPY_useRates[3] = {0,0,0};
-    static int16_t setpoint[3] = {0,0,0};
-    static int16_t PIDdata[3] = {0,0,0};
-    static int16_t LastDt[3];
-     
+    uint32_t last_Time = 0;
+    uint8_t CalibDelay = 20;
+    int32_t lastError[3] = {0,0,0};
+    int32_t Isum[3] = {0,0,0};
+    int16_t RPY_useRates[3] = {0,0,0};
+    int16_t setpoint[3] = {0,0,0};
+    int16_t PIDdata[3] = {0,0,0};
+    int16_t LastDt[3];
+    uint16_t LiPoEmptyWaring = 0;
+    
+    int16_t RXcommands[6] = {0,500,500,500,-500,500};
+    int8_t Armed = 0;
+    
+
+    int16_t GyroXYZ[3] = {0,0,0};
+    int16_t ACCXYZ[3] = {0,0,0};
+    int16_t angle[3] = {0,0,0};
+    int16_t I2C_Errors = 0;
+    uint16_t calibGyroDone = 500;
+    
+    static const uint16_t RC_Rate = RC_RATE;
+    static const uint8_t RPY_Rate[3] = {RC_ROLL_RATE,RC_PITCH_RATE,RC_YAW_RATE};
+    static const int16_t Imax[3] = {18000,18000,5000};
+    static const uint8_t G_P[3] = {GYRO_P_ROLL,GYRO_P_PITCH,GYRO_P_YAW};
+    static const uint8_t G_I[3] = {GYRO_I_ROLL,GYRO_I_PITCH,GYRO_I_YAW};
+    static const uint8_t G_D[3] = {GYRO_D_ROLL,GYRO_D_PITCH,GYRO_D_YAW};
+    
+    static const uint16_t minCycleTime = 2000;
+    
     static enum states state = INIT;
     static enum states state_next = INIT;
     
@@ -71,7 +72,7 @@ int main(void)
     init_ADC();
     init_blinker();
     init_motorpwm();
-    init_MPU6050();
+    init_MPU6050(&I2C_Errors);
     init_rf();
     
     
@@ -130,7 +131,7 @@ int main(void)
                 
                 if(calibGyroDone > 0 && CalibDelay == 0) 
                 {
-                    ReadMPU();
+                    ReadMPU(GyroXYZ, ACCXYZ, angle, &I2C_Errors, &calibGyroDone);
                 }
                 else
                 {
@@ -142,7 +143,7 @@ int main(void)
                 
                 set_blink_style(BLINKER_DISARM);
                 
-                rx_rf();
+                rx_rf(RXcommands);
                 // Device may arm when AUX1 is high, throttle is low, and RF is good
                 if(RXcommands[4] > 150)
                 {
@@ -159,8 +160,8 @@ int main(void)
                 
                 set_blink_style(BLINKER_ON);
             
-                ReadMPU();
-                rx_rf();
+                ReadMPU(GyroXYZ, ACCXYZ, angle, &I2C_Errors, &calibGyroDone);
+                rx_rf(RXcommands);
                 
                 // Disarm on RF failsafe or user command
                 if(failsafe > 10 || RXcommands[4] <= 150)
@@ -214,7 +215,7 @@ int main(void)
                 }
                 
                 // Set motor duty cycle
-                set_motorpwm(PIDdata, Armed && (RXcommands[0] > MIN_COMMAND));
+                set_motorpwm(PIDdata, RXcommands, Armed && (RXcommands[0] > MIN_COMMAND));
                 
                 
                 // Sample the battery voltage

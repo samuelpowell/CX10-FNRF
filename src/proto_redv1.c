@@ -153,7 +153,7 @@ void bind_rf() {
 
 
 // Place RF command data in RXcommand variable, process AUX commands
-void rx_rf() {
+void rx_rf(int16_t *RXcommands) {
     
   // If a new packet exists in the buffer
   if(nrfGetStatus() & 0x40)
