@@ -22,7 +22,7 @@ void I2C_WrReg(uint8_t Reg, uint8_t Val, int16_t *I2C_Errors){
 	uint16_t test = 0;
 	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_TXIS) == RESET){
 		test++;
-		if(test > 50000){ *I2C_Errors++; return;}
+		if(test > 50000){ (*I2C_Errors)++; return;}
 	}
 
 	I2C_SendData(I2C1, Reg);
@@ -30,7 +30,7 @@ void I2C_WrReg(uint8_t Reg, uint8_t Val, int16_t *I2C_Errors){
 	test = 0;
 	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_TCR) == RESET){
 		test++;
-		if(test > 50000){ *I2C_Errors++; return;}
+		if(test > 50000){ (*I2C_Errors)++; return;}
 	}
 
 	I2C_TransferHandling(I2C1, MPU_address, 1, I2C_AutoEnd_Mode, I2C_No_StartStop);
@@ -38,7 +38,7 @@ void I2C_WrReg(uint8_t Reg, uint8_t Val, int16_t *I2C_Errors){
 	test = 0;
 	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_TXIS) == RESET){
 		test++;
-		if(test > 50000){ *I2C_Errors++; return;}
+		if(test > 50000){ (*I2C_Errors)++; return;}
 	}
 
 	I2C_SendData(I2C1, Val);
@@ -46,7 +46,7 @@ void I2C_WrReg(uint8_t Reg, uint8_t Val, int16_t *I2C_Errors){
 	test = 0;
 	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_STOPF) == RESET){
 		test++;
-		if(test > 50000){ *I2C_Errors++; return;}
+		if(test > 50000){ (*I2C_Errors)++; return;}
 	}
 
 	I2C_ClearFlag(I2C1, I2C_FLAG_STOPF);
@@ -68,7 +68,7 @@ void ReadMPU(int16_t *GyroXYZ, int16_t *ACCXYZ, int16_t *angle, int16_t *I2C_Err
 	uint16_t test = 0;
 	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_TXIS) == RESET){
 		test++;
-		if(test > 50000){ *I2C_Errors++; return;}
+		if(test > 50000){ (*I2C_Errors)++; return;}
 	}
 
 	I2C_SendData(I2C1, (uint8_t)0x3B);
@@ -76,7 +76,7 @@ void ReadMPU(int16_t *GyroXYZ, int16_t *ACCXYZ, int16_t *angle, int16_t *I2C_Err
 	test = 0;
 	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_TC) == RESET){
 		test++;
-		if(test > 50000){ *I2C_Errors++; return;}
+		if(test > 50000){ (*I2C_Errors)++; return;}
 	}
 
 	I2C_TransferHandling(I2C1, MPU_address, 14, I2C_AutoEnd_Mode, I2C_Generate_Start_Read);
@@ -86,7 +86,7 @@ void ReadMPU(int16_t *GyroXYZ, int16_t *ACCXYZ, int16_t *angle, int16_t *I2C_Err
 		test = 0;
 		while(I2C_GetFlagStatus(I2C1, I2C_FLAG_RXNE) == RESET){
 			test++;
-			if(test > 50000){ *I2C_Errors++; return;}
+			if(test > 50000){ (*I2C_Errors)++; return;}
 		}
 
 		I2C_rec_Buffer[i] = I2C_ReceiveData(I2C1);
@@ -105,7 +105,7 @@ void ReadMPU(int16_t *GyroXYZ, int16_t *ACCXYZ, int16_t *angle, int16_t *I2C_Err
 		(int16_t)((I2C_rec_Buffer[10]<<8) | I2C_rec_Buffer[11]),
 		(int16_t)((I2C_rec_Buffer[12]<<8) | I2C_rec_Buffer[13]));
 	
-	if(calibGyroDone > 0){
+	if(*calibGyroDone > 0){
 		for(i = 0; i<3;i++){
 			calibGyro[i]+= GyroXYZ[i];
 		}
@@ -120,7 +120,7 @@ void ReadMPU(int16_t *GyroXYZ, int16_t *ACCXYZ, int16_t *angle, int16_t *I2C_Err
 			}
 			GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDon);			
 		}
-		*calibGyroDone--;
+		(*calibGyroDone)--;
 	}else{
 		for(i = 0; i<3;i++){
 			GyroXYZ[i] -= calibGyro[i];

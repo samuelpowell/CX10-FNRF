@@ -18,7 +18,6 @@ enum states { INIT, BIND, CALIBRATING, DISARMED, ARMED, ARMED_LOWBAT };
 int main(void)
 {
     uint32_t last_Time = 0;
-    uint8_t CalibDelay = 20;
     int32_t lastError[3] = {0,0,0};
     int32_t Isum[3] = {0,0,0};
     int16_t RPY_useRates[3] = {0,0,0};
@@ -28,9 +27,7 @@ int main(void)
     uint16_t LiPoEmptyWaring = 0;
     
     int16_t RXcommands[6] = {0,500,500,500,-500,500};
-    int8_t Armed = 0;
     
-
     int16_t GyroXYZ[3] = {0,0,0};
     int16_t ACCXYZ[3] = {0,0,0};
     int16_t angle[3] = {0,0,0};
@@ -100,66 +97,41 @@ int main(void)
     // Start main FC loop
     while(1) {
         
-        // Set to next state
-        state = state_next;
-        
-        // Record start of cycle
-        uint32_t CycleStart = micros();
+        state = state_next;                 // Set to next state
+        uint32_t CycleStart = micros();     // Record start of cycle
         
         switch(state)
         {
+            case INIT:
+                // It should never come to this
+                break;
+            
             case BIND:
-                
+                // Bind RF, when finished, move to calibration state
                 set_blink_style(BLINKER_BIND);
                 bind_rf();
                 state_next = CALIBRATING;            
                 break;
             
             case CALIBRATING:
-                
+                // Run calibration cycle, when finished, move to disarmed state
                 set_blink_style(BLINKER_BIND);
-                    
-                // TODO: This was originally called at 10Hz, so there will be no delay now
-                // and rapidly flashing LEDs, fix with timer.
-                if(CalibDelay > 0)
-                {
-                    if(CalibDelay%2)GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDon);
-                    else GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDoff);
-                    CalibDelay--;
-                }
-                
-                
-                if(calibGyroDone > 0 && CalibDelay == 0) 
-                {
-                    ReadMPU(GyroXYZ, ACCXYZ, angle, &I2C_Errors, &calibGyroDone);
-                }
-                else
-                {
-                    state_next = DISARMED;
-                }
+                if(calibGyroDone > 0) ReadMPU(GyroXYZ, ACCXYZ, angle, &I2C_Errors, &calibGyroDone);
+                else state_next = DISARMED;
                 break;
                            
             case DISARMED:
-                
+                // Await a valid arming request, move to armed state when received
                 set_blink_style(BLINKER_DISARM);
-                
                 rx_rf(RXcommands);
-                // Device may arm when AUX1 is high, throttle is low, and RF is good
-                if(RXcommands[4] > 150)
-                {
-                    if(Armed == 0 && failsafe < 10 && RXcommands[0] <= 150)
-                    {
-                        Armed = 1;
-                        state_next = ARMED;    
-                    }
-                }      
+                if(RXcommands[4] > 150 && failsafe < 10 && RXcommands[0] <= 150) state_next = ARMED;    
                 break;
                         
             case ARMED:
             case ARMED_LOWBAT:    
-                
+                // Device is armed, process flight control and write motors, move to
+                // disarm if there is an RF failure or if it commanded.
                 set_blink_style(BLINKER_ON);
-            
                 ReadMPU(GyroXYZ, ACCXYZ, angle, &I2C_Errors, &calibGyroDone);
                 rx_rf(RXcommands);
                 
@@ -167,7 +139,6 @@ int main(void)
                 if(failsafe > 10 || RXcommands[4] <= 150)
                 {
                     RXcommands[0] = 0;
-                    Armed = false;
                     state_next = DISARMED;
                 }
                 
@@ -215,8 +186,7 @@ int main(void)
                 }
                 
                 // Set motor duty cycle
-                set_motorpwm(PIDdata, RXcommands, Armed && (RXcommands[0] > MIN_COMMAND));
-                
+                set_motorpwm(PIDdata, RXcommands, (state_next == ARMED) && (RXcommands[0] > MIN_COMMAND));
                 
                 // Sample the battery voltage
                 ADC_StartOfConversion(ADC1);
@@ -237,9 +207,7 @@ int main(void)
                     }
                     else if(LiPoVolt < 300) LiPoEmptyWaring++;
                     else if(LiPoEmptyWaring > 10) LiPoEmptyWaring -= 10;
-                }
-        
-        
+                }        
                 break;
                 
         }
