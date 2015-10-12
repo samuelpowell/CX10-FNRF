@@ -123,7 +123,7 @@ int main(void)
             case DISARMED:
                 // Await a valid arming request, move to armed state when received
                 set_blink_style(BLINKER_DISARM);
-                rx_rf(RXcommands);
+                failsafe = rx_rf(RXcommands) ? 0 : failsafe+1;
                 if(RXcommands[4] > 150 && failsafe < 10 && RXcommands[0] <= 150) state_next = ARMED;    
                 break;
                         
@@ -133,7 +133,7 @@ int main(void)
                 // disarm if there is an RF failure or if it commanded.
                 set_blink_style(BLINKER_ON);
                 ReadMPU(GyroXYZ, ACCXYZ, angle, &I2C_Errors, &calibGyroDone);
-                rx_rf(RXcommands);
+                failsafe = rx_rf(RXcommands) ? 0 : failsafe+1;
                 
                 // Disarm on RF failsafe or user command
                 if(failsafe > 10 || RXcommands[4] <= 150)
