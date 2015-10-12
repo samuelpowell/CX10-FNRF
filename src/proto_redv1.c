@@ -14,8 +14,6 @@
 #define PAYLOADSIZE       9          // Protocol packet size
 
 extern uint8_t failsafe;
-bool bind = false;
-extern int16_t RXcommands[6];
 
 char rxbuffer[9] = {0,0,0,0,0,0,0,0,0};
 const char rf_addr_bind[5] = {0x65, 0x65, 0x65, 0x65, 0x65};
@@ -95,6 +93,8 @@ void init_rf() {
 
 
 void bind_rf() {
+    
+    bool bind = false;
 
   // Set device to bind address
   nrfWriteReg( REG_RX_ADDR_P0, (char *) rf_addr_bind, 5);

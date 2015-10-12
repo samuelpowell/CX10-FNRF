@@ -17,7 +17,6 @@
 
 // External definitions
 extern uint8_t failsafe;
-extern int16_t RXcommands[6];
 
 // Constant data
 const char rf_addr_bind[5]  = {0xCC, 0xCC, 0xCC, 0xCC, 0xCC};
