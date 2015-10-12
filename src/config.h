@@ -5,8 +5,8 @@
 //#define CX10_GREEN    // Not implemented
 
 // Throttle settings
-#define MIN_COMMAND 80      // controll starts if throttle is higher then that 
-#define MIN_THROTTLE 50     // minimum speed for the motors
+#define MIN_COMMAND  80      // controll starts if throttle is higher then that 
+#define MIN_THROTTLE 25     // minimum speed for the motors
 
 // P term 40 == 4.0
 #define GYRO_P_ROLL  45
