@@ -9,7 +9,15 @@
 
 #include "config.h"
 
-static uint16_t minCycleTime = 2000;
+static const uint16_t minCycleTime = 2000;
+
+static const uint16_t RC_Rate = RC_RATE;
+static const uint8_t RPY_Rate[3] = {RC_ROLL_RATE,RC_PITCH_RATE,RC_YAW_RATE};
+static const int16_t Imax[3] = {18000,18000,5000};
+
+
+
+
 
 static uint16_t LiPoEmptyWaring = 0;
 
@@ -25,21 +33,36 @@ uint8_t failsafe = 100;
 
 uint8_t mode = 0;
 
-uint8_t G_P[3] = {GYRO_P_ROLL,GYRO_P_PITCH,GYRO_P_YAW};
-uint8_t G_I[3] = {GYRO_I_ROLL,GYRO_I_PITCH,GYRO_I_YAW};
-uint8_t G_D[3] = {GYRO_D_ROLL,GYRO_D_PITCH,GYRO_D_YAW};
+static const uint8_t G_P[3] = {GYRO_P_ROLL,GYRO_P_PITCH,GYRO_P_YAW};
+static const uint8_t G_I[3] = {GYRO_I_ROLL,GYRO_I_PITCH,GYRO_I_YAW};
+static const uint8_t G_D[3] = {GYRO_D_ROLL,GYRO_D_PITCH,GYRO_D_YAW};
 
-uint16_t RC_Rate = RC_RATE;
-uint8_t RPY_Rate[3] = {RC_ROLL_RATE,RC_PITCH_RATE,RC_YAW_RATE};
-int16_t Imax[3] = {18000,18000,5000};
+
+
+
+
+
 
 int main(void)
 {
-    // SystemInit is called by startup code, device and clocks are configured.
+
+    // Startup code calls SystemInit: system clock is configured 
     
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB, ENABLE);
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1 | RCC_APB1Periph_TIM2 | RCC_APB1Periph_TIM3, ENABLE);
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1 | RCC_APB2Periph_USART1 | RCC_APB2Periph_TIM17 | RCC_APB2Periph_ADC1 | RCC_APB2Periph_TIM16 | RCC_APB2Periph_TIM1 | RCC_APB2Periph_SYSCFG, ENABLE);
+    // Enable peripheral clocks    
+    RCC_AHBPeriphClockCmd( RCC_AHBPeriph_GPIOA
+                         | RCC_AHBPeriph_GPIOB, ENABLE);
+    
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1
+                         | RCC_APB1Periph_TIM2
+                         | RCC_APB1Periph_TIM3, ENABLE);
+    
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1 
+                         | RCC_APB2Periph_USART1
+                         | RCC_APB2Periph_TIM17 
+                         | RCC_APB2Periph_ADC1 
+                         | RCC_APB2Periph_TIM16 
+                         | RCC_APB2Periph_TIM1 
+                         | RCC_APB2Periph_SYSCFG, ENABLE);
     
     // Initialise peripherals
     init_timer();
@@ -50,7 +73,7 @@ int main(void)
     init_rf();
     
     
-#if defined(CX10_BLUE)
+    #if defined(CX10_BLUE)
     // Enable 3.3v LDO
     GPIO_InitTypeDef LEDGPIOinit;
     LEDGPIOinit.GPIO_Pin = LED1_BIT;
@@ -63,7 +86,7 @@ int main(void)
     LEDGPIOinit.GPIO_Pin = GPIO_Pin_5;
     GPIO_Init(GPIOA, &LEDGPIOinit);
     GPIO_WriteBit(GPIOA, GPIO_Pin_5, Bit_SET);
-#endif
+    #endif
     
     // Bind to TX
     set_blink_style(BLINKER_BIND);
@@ -82,6 +105,7 @@ int main(void)
         static int16_t setpoint[3] = {0,0,0};
         static int16_t PIDdata[3] = {0,0,0};
         static int16_t LastDt[3];
+        
         uint8_t i = 0;
         
         // Record start of cycle
