@@ -4,8 +4,8 @@
 // GNU General Public License, see LICENSE.md for further details.
 //
 // Copyright � 	2015 Samuel Powell
-//              2015 Bart Slinger
-//              2014 Felix Niessen
+//							2015 Bart Slinger
+//							2014 Felix Niessen
 
 #include "config.h"
 
@@ -64,8 +64,17 @@ int main(void)
                          | RCC_APB2Periph_TIM1 
                          | RCC_APB2Periph_SYSCFG, ENABLE);
     
-    // Enable 3.3v LDO on blue board (held high by cap charge?)
+    // Initialise peripherals
+    init_timer();
+    init_ADC();
+    init_blinker();
+    init_motorpwm();
+    init_MPU6050(&I2C_Errors);
+    init_rf();
+    
+    
     #if defined(CX10_BLUE)
+    // Enable 3.3v LDO
     GPIO_InitTypeDef LEDGPIOinit;
     LEDGPIOinit.GPIO_Pin = LED1_BIT;
     LEDGPIOinit.GPIO_Mode = GPIO_Mode_OUT;
@@ -79,15 +88,10 @@ int main(void)
     GPIO_WriteBit(GPIOA, GPIO_Pin_5, Bit_SET);
     #endif
     
-    // Initialise peripherals
-    init_timer();
-    init_ADC();
-    init_blinker();
-    init_motorpwm();
-    init_MPU6050(&I2C_Errors);
-    init_rf();
+    // Bind to TX
     
-    // Set first state transition
+  
+    
     state_next = BIND;
     
     // Start main FC loop
@@ -182,7 +186,7 @@ int main(void)
                 }
                 
                 // Set motor duty cycle
-                set_motorpwm(PIDdata, RXcommands, (state_next == ARMED) && (RXcommands[0] > MIN_THROTTLE));
+                set_motorpwm(PIDdata, RXcommands, (state_next == ARMED) && (RXcommands[0] > MIN_COMMAND));
                 
                 // Sample the battery voltage
                 ADC_StartOfConversion(ADC1);
