@@ -14,21 +14,6 @@ static uint16_t minCycleTime = 2000;
 
 static int8_t answerStayTime = 0;
 static uint16_t LiPoEmptyWaring = 0;
-uint8_t nx[2] = {'\n','\r'};
-uint8_t TelRXThrottle[10] = {'T','h','r','o','t','t','l','e',' ',' '};
-uint8_t TelRXRoll[10] = {'R','o','l','l',' ',' ',' ',' ',' ',' '};
-uint8_t TelRXPitch[10] = {'P','i','t','c','h',' ',' ',' ',' ',' '};
-uint8_t TelRXYaw[10] = {'Y','a','w',' ',' ',' ',' ',' ',' ',' '};
-uint8_t TelRXAux1[10] = {'A','u','x','1',' ',' ',' ',' ',' ',' '};
-uint8_t TelRXAux2[10] = {'A','u','x','2',' ',' ',' ',' ',' ',' '};
-uint8_t TelLiPoVolt[10] = {'L','i','P','o',' ','V','o','l','t','.'};
-uint8_t TelGX[10] = {'G','y','r','o',' ','X',' ',' ',' ',' '};
-uint8_t TelGY[10] = {'G','y','r','o',' ','Y',' ',' ',' ',' '};
-uint8_t TelGZ[10] = {'G','y','r','o',' ','Z',' ',' ',' ',' '};
-uint8_t TelAX[10] = {'A','C','C',' ','X',' ',' ',' ',' ',' '};
-uint8_t TelAY[10] = {'A','C','C',' ','Y',' ',' ',' ',' ',' '};
-uint8_t TelAZ[10] = {'A','C','C',' ','Z',' ',' ',' ',' ',' '};
-uint8_t TelDefaultAnswer[10] = {'H','o','d','o','r','!',' ',' ',' ',' '};
 
 int16_t RXcommands[6] = {0,500,500,500,-500,500};
 int8_t Armed = 0;
@@ -40,9 +25,7 @@ int16_t I2C_Errors = 0;
 uint16_t calibGyroDone = 500;
 uint8_t failsafe = 100;
 
-
 uint8_t mode = 0;
-
 
 uint8_t G_P[3] = {GYRO_P_ROLL,GYRO_P_PITCH,GYRO_P_YAW};
 uint8_t G_I[3] = {GYRO_I_ROLL,GYRO_I_PITCH,GYRO_I_YAW};
@@ -51,8 +34,6 @@ uint8_t G_D[3] = {GYRO_D_ROLL,GYRO_D_PITCH,GYRO_D_YAW};
 uint16_t RC_Rate = RC_RATE;
 uint8_t RPY_Rate[3] = {RC_ROLL_RATE,RC_PITCH_RATE,RC_YAW_RATE};
 int16_t Imax[3] = {18000,18000,5000};
-
-
 
 int main(void)
 {
@@ -70,9 +51,6 @@ int main(void)
     init_MPU6050();
     init_rf();
     
-#if defined(SERIAL_ACTIVE)
-    init_UART(115200);
-#endif
     
 #if defined(CX10_BLUE)
     // Enable 3.3v LDO
@@ -214,98 +192,9 @@ int main(void)
             else if(LiPoVolt < 300) LiPoEmptyWaring++;
             else if(LiPoEmptyWaring > 10) LiPoEmptyWaring -= 10;
         }
-        #if defined(SERIAL_ACTIVE)
-        while (serial_available()){
-            serial_read();
-            answerStayTime = 20;
-        }
-        #endif
-        
-        while(micros()-CycleStart<minCycleTime){
-            #if defined(SERIAL_ACTIVE)
-            if(TelMtoSend > 1 || (answerStayTime > 0 && TelMtoSend > 0)){
-                TelMtoSend--;
-                switch(TelMtoSend){
-                    case 14:
-                        serial_send_bytes(TelRXThrottle,10);
-                        print_int16(RXcommands[0]);
-                        serial_send_bytes(nx,2);
-                        break;
-                    case 13:
-                        serial_send_bytes(TelRXRoll,10);
-                        print_int16(RXcommands[1]);
-                        serial_send_bytes(nx,2);
-                        break;
-                    case 12:
-                        serial_send_bytes(TelRXPitch,10);
-                        print_int16(RXcommands[2]);
-                        serial_send_bytes(nx,2);
-                        break;
-                    case 11:
-                        serial_send_bytes(TelRXYaw,10);
-                        print_int16(RXcommands[3]);
-                        serial_send_bytes(nx,2);
-                        break;
-                    case 10:
-                        serial_send_bytes(TelRXAux1,10);
-                        print_int16(RXcommands[4]);
-                        serial_send_bytes(nx,2);
-                        break;
-                    case 9:
-                        serial_send_bytes(TelRXAux2,10);
-                        print_int16(RXcommands[5]);
-                        serial_send_bytes(nx,2);			
-                        break;		
-                    case 8:
-                        serial_send_bytes(TelLiPoVolt,10);
-                        print_int16(LiPoVolt);
-                        serial_send_bytes(nx,2);			
-                        break;
-                    case 7:
-                        serial_send_bytes(TelGX,10);
-                        print_int16(GyroXYZ[0]);
-                        serial_send_bytes(nx,2);			
-                        break;	
-                    case 6:
-                        serial_send_bytes(TelGY,10);
-                        print_int16(GyroXYZ[1]);
-                        serial_send_bytes(nx,2);			
-                        break;
-                    case 5:
-                        serial_send_bytes(TelGZ,10);
-                        print_int16(GyroXYZ[2]);
-                        serial_send_bytes(nx,2);			
-                        break;	
-                    case 4:
-                        serial_send_bytes(TelAX,10);
-                        print_int16(ACCXYZ[0]);
-                        serial_send_bytes(nx,2);			
-                        break;
-                    case 3:
-                        serial_send_bytes(TelAY,10);
-                        print_int16(ACCXYZ[1]);
-                        serial_send_bytes(nx,2);			
-                        break;
-                    case 2:
-                        serial_send_bytes(TelAZ,10);
-                        print_int16(ACCXYZ[2]);
-                        serial_send_bytes(nx,2);			
-                        break;					
-                    case 1:
-                        serial_send_bytes(nx,2);
-                        serial_send_bytes(nx,2);
-                        serial_send_bytes(nx,2);
-                        break;
-                    case 0:
-                        serial_send_bytes(TelDefaultAnswer,10);
-                        serial_send_bytes(nx,2);
-                        serial_send_bytes(nx,2);
-                        serial_send_bytes(nx,2);
-                        break;
-                }
-            }
-            #endif
-        }
+                
+        while(micros()-CycleStart<minCycleTime);
+           
     }
 }
 

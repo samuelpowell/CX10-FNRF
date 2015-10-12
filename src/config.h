@@ -58,9 +58,6 @@
     #define RF_PROTO_GREEN
 #endif
 
-#if defined(CX10_REDV1) || defined(FORCE_SERIAL)
-    #define SERIAL_ACTIVE
-#endif
 
 #if defined(CX10_REDV1)
 	#define LEDon Bit_SET
@@ -120,7 +117,6 @@
 #include "adc.h"
 #include "MPU6050.h"
 #include "timer.h"
-#include "serial.h"
 #include "nrf24.h"
 #include "blinker.h"
 #include "motorpwm.h"
