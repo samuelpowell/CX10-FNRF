@@ -118,21 +118,48 @@ void init_motorpwm()
 }
 
 // Set duty cycle of motor outputs (if ENabled)
-void set_motorpwm(int16_t *RXcommands, int16_t *PIDdata, bool EN)
+void set_motorpwm(int16_t throttle, int16_t *PIDdata, bool EN)
 {
+    int16_t motorpwm[4];
+    mixer(throttle, PIDdata, motorpwm, MOTORPWM_DUTY_MIN, EN ? MOTORPWM_DUTY_MAX : 0);
     
     #if defined(CX10_REDV1)
-    TIM1->CCR1  = constrain(MIX(+1,-1,-1), MOTORPWM_DUTY_MIN, EN ? MOTORPWM_DUTY_MAX : 0); // FL
-    TIM1->CCR4  = constrain(MIX(-1,-1,+1), MOTORPWM_DUTY_MIN, EN ? MOTORPWM_DUTY_MAX : 0); // FR
-    TIM16->CCR1 = constrain(MIX(-1,+1,-1), MOTORPWM_DUTY_MIN, EN ? MOTORPWM_DUTY_MAX : 0); // RR
-    TIM2->CCR4  = constrain(MIX(+1,+1,+1), MOTORPWM_DUTY_MIN, EN ? MOTORPWM_DUTY_MAX : 0); // RL
+    TIM1->CCR1  = motorpwm[0]; // FL
+    TIM1->CCR4  = motorpwm[1]; // FR
+    TIM16->CCR1 = motorpwm[2]; // RR
+    TIM2->CCR4  = motorpwm[3]; // RL
     #endif
     
     #if defined(CX10_BLUE)
-    TIM1->CCR4 = constrain(MIX(+1,-1,-1), MOTORPWM_DUTY_MIN, EN ? MOTORPWM_DUTY_MAX : 0); // FL
-    TIM1->CCR3 = constrain(MIX(-1,-1,+1), MOTORPWM_DUTY_MIN, EN ? MOTORPWM_DUTY_MAX : 0); // FR
-    TIM1->CCR2 = constrain(MIX(-1,+1,-1), MOTORPWM_DUTY_MIN, EN ? MOTORPWM_DUTY_MAX : 0); // RR
-    TIM1->CCR1 = constrain(MIX(+1,+1,+1), MOTORPWM_DUTY_MIN, EN ? MOTORPWM_DUTY_MAX : 0); // RL
+    TIM1->CCR4 = motorpwm[0]; // FL
+    TIM1->CCR3 = motorpwm[1]; // FR
+    TIM1->CCR2 = motorpwm[2]; // RR
+    TIM1->CCR1 = motorpwm[3]; // RL
     #endif
     
 }
+
+void mixer(int16_t throttle, int16_t *rpy, int16_t *motorpwm, uint16_t minpwm, uint16_t maxpwm)
+{
+
+    // Mix commanded roll/pitch/yaw
+    motorpwm[0] = throttle + rpy[0] - rpy[1] - rpy[2]; // Front left:  +roll, -pitch, -yaw
+    motorpwm[1] = throttle - rpy[0] - rpy[1] + rpy[2]; // Front right: -roll, -pitch, +yaw
+    motorpwm[2] = throttle - rpy[0] + rpy[1] - rpy[2]; // Rear right:  -roll, +pitch, -yaw
+    motorpwm[3] = throttle + rpy[0] + rpy[1] + rpy[2]; // Rear left:   +roll, +pitch, +yaw
+    
+    // Contrain to minimum and maximum
+    for(int i=0; i<4; i++) motorpwm[i] = constrain(motorpwm[i], minpwm, maxpwm);
+
+}    
+
+
+
+
+
+
+
+
+
+
+

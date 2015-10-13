@@ -7,4 +7,5 @@
 //				2014 Felix Niessen
 
 void init_motorpwm(void);
-void set_motorpwm(int16_t *PIDdata, int16_t *RXcommands, bool EN);
+void set_motorpwm(int16_t throttle, int16_t *PIDdata, bool EN);
+void mixer(int16_t throttle, int16_t *rpy, int16_t *motorpwm, uint16_t minpwm, uint16_t maxpwm);
