@@ -233,7 +233,7 @@ int main(void)
                 
                 
                 // Set motor duty cycle
-                set_motorpwm(PIDdata, RXcommands, (state_next == ARMED) && (RXcommands[0] > MIN_THROTTLE));
+                set_motorpwm(RXcommands[0], PIDdata, (state_next == ARMED) && (RXcommands[0] > MIN_THROTTLE));
                 
                 // Sample the battery voltage
                 ADC_StartOfConversion(ADC1);

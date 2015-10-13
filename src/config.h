@@ -129,7 +129,6 @@
 // Preprocessor functions
 #define abs(x) ((x) > 0 ? (x) : -(x))
 #define constrain(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
-#define MIX(X,Y,Z) constrain(RXcommands[0],0,1000) + PIDdata[0]*X + PIDdata[1]*Y + PIDdata[2]*Z
 
 
 // Global variables
