@@ -54,11 +54,12 @@ void I2C_WrReg(uint8_t Reg, uint8_t Val, int16_t *I2C_Errors){
 }
 
 
-
-void ReadMPU(int16_t *GyroXYZ, int16_t *ACCXYZ, int16_t *angle, int16_t *I2C_Errors, uint16_t *calibGyroDone)
+// Returns baseline corrected Gyro and Acc readings
+void ReadMPU(float *gyr, float *acc, int16_t *GyroXYZ, int16_t *ACCXYZ, int16_t *angle, int16_t *I2C_Errors, uint16_t *calibGyroDone)
  {
 	static uint8_t i = 0;
 	static int32_t calibGyro[3] = {0,0,0};
+    static int32_t calibAcc[3] = {0,0,0};
 	uint8_t I2C_rec_Buffer[14];
 	
 	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY) == SET);
@@ -97,9 +98,9 @@ void ReadMPU(int16_t *GyroXYZ, int16_t *ACCXYZ, int16_t *angle, int16_t *I2C_Err
 
 	I2C_ClearFlag(I2C1, I2C_FLAG_STOPF); 
 
-	ACC_ORIENTATION( (int16_t)((I2C_rec_Buffer[0]<<8) | I2C_rec_Buffer[1])/8,
-		(int16_t)((I2C_rec_Buffer[2]<<8) | I2C_rec_Buffer[3])/8,
-		(int16_t)((I2C_rec_Buffer[4]<<8) | I2C_rec_Buffer[5])/8);	
+	ACC_ORIENTATION( (int16_t)((I2C_rec_Buffer[0]<<8) | I2C_rec_Buffer[1]),
+		(int16_t)((I2C_rec_Buffer[2]<<8) | I2C_rec_Buffer[3]),
+		(int16_t)((I2C_rec_Buffer[4]<<8) | I2C_rec_Buffer[5]));	
 	
 	GYRO_ORIENTATION( (int16_t)((I2C_rec_Buffer[8]<<8) | I2C_rec_Buffer[9]),
 		(int16_t)((I2C_rec_Buffer[10]<<8) | I2C_rec_Buffer[11]),
@@ -108,6 +109,7 @@ void ReadMPU(int16_t *GyroXYZ, int16_t *ACCXYZ, int16_t *angle, int16_t *I2C_Err
 	if(*calibGyroDone > 0){
 		for(i = 0; i<3;i++){
 			calibGyro[i]+= GyroXYZ[i];
+            calibAcc[i] += ACCXYZ[i];
 		}
 		
 		if(*calibGyroDone%2)GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDoff);	
@@ -116,17 +118,25 @@ void ReadMPU(int16_t *GyroXYZ, int16_t *ACCXYZ, int16_t *angle, int16_t *I2C_Err
 		
 		if(*calibGyroDone == 1){
 			for(i = 0; i<3;i++){
-				calibGyro[i]= calibGyro[i]/500;
+				calibGyro[i]= calibGyro[i]/IMU_CALIB_CYCLES;
+                calibAcc[i] = calibAcc[i]/IMU_CALIB_CYCLES;
 			}
+            calibAcc[2] -= 4096; // Add in gravity.
+            
 			GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDon);			
 		}
 		(*calibGyroDone)--;
 	}else{
 		for(i = 0; i<3;i++){
 			GyroXYZ[i] -= calibGyro[i];
+            ACCXYZ[i] -= calibAcc[i];
+            gyr[i] = (float)GyroXYZ[i]*0.0010642252f;       // Range = +/- 2000 dps (16.4 LSBs/DPS)
+            acc[i] = (float)ACCXYZ[i]*0.00239502f;         // Range = +/- 8 g (4096 lsb/g)
+            
 		}
 	}
 }
+ 
 
 
 
@@ -156,9 +166,9 @@ void init_MPU6050(int16_t *I2C_Errors){
 	I2C_WrReg(0x6B, 0x80, I2C_Errors);
 	delay_micros(5000); 
 	I2C_WrReg(0x6B, 0x03, I2C_Errors); 
-	I2C_WrReg(0x1A, 0, I2C_Errors); // LPF
-	I2C_WrReg(0x1B, 0x18, I2C_Errors);
-	I2C_WrReg(0x1C, 0x10, I2C_Errors);	
+	I2C_WrReg(0x1A, 0, I2C_Errors);     // Set LPF to minimum on Gyro and Acc
+	I2C_WrReg(0x1B, 0x18, I2C_Errors);  // Configure Gyro 2000deg/s full scale
+	I2C_WrReg(0x1C, 0x10, I2C_Errors);	// Configure Acc +- 8g full scale
 	
 }
 

@@ -8,7 +8,7 @@
 //              2014 Felix Niessen
 
 #include "config.h"
-
+#include "math.h"
 int16_t LiPoVolt = 0;
 uint8_t failsafe = 100;
 uint8_t mode = 0;
@@ -21,7 +21,7 @@ int main(void)
     int32_t lastError[3] = {0,0,0};
     int32_t Isum[3] = {0,0,0};
     int16_t RPY_useRates[3] = {0,0,0};
-    int16_t setpoint[3] = {0,0,0};
+    static int16_t setpoint[3] = {0,0,0}; // Static for debug purposes
     int16_t PIDdata[3] = {0,0,0};
     int16_t LastDt[3];
     uint16_t LiPoEmptyWaring = 0;
@@ -30,9 +30,13 @@ int main(void)
     
     int16_t GyroXYZ[3] = {0,0,0};
     int16_t ACCXYZ[3] = {0,0,0};
+    float gyr[3];   // Gyro readings in rad/s
+    float acc[3];   // Accelerometer readings in m^s^2
     int16_t angle[3] = {0,0,0};
     int16_t I2C_Errors = 0;
-    uint16_t calibGyroDone = 500;
+    uint16_t calibGyroDone = IMU_CALIB_CYCLES;
+    
+    static float imu_pitch, imu_roll, imu_yaw, req_pitch, req_roll;
     
     static const uint16_t RC_Rate = RC_RATE;
     static const uint8_t RPY_Rate[3] = {RC_ROLL_RATE,RC_PITCH_RATE,RC_YAW_RATE};
@@ -112,7 +116,7 @@ int main(void)
             case CALIBRATING:
                 // Run calibration cycle, when finished, move to disarmed state
                 set_blink_style(BLINKER_BIND);
-                if(calibGyroDone > 0) ReadMPU(GyroXYZ, ACCXYZ, angle, &I2C_Errors, &calibGyroDone);
+                if(calibGyroDone > 0) ReadMPU(gyr, acc, GyroXYZ, ACCXYZ, angle, &I2C_Errors, &calibGyroDone);
                 else state_next = DISARMED;
                 break;
                            
@@ -128,7 +132,7 @@ int main(void)
                 // Device is armed, process flight control and write motors, move to
                 // disarm if there is an RF failure or if it commanded.
                 set_blink_style(BLINKER_ON);
-                ReadMPU(GyroXYZ, ACCXYZ, angle, &I2C_Errors, &calibGyroDone);
+                ReadMPU(gyr, acc, GyroXYZ, ACCXYZ, angle, &I2C_Errors, &calibGyroDone);
                 failsafe = rx_rf(RXcommands) ? 0 : failsafe+1;
                 
                 // Disarm on RF failsafe or user command
@@ -138,20 +142,65 @@ int main(void)
                     state_next = DISARMED;
                 }
                 
+                // Update IMU
+                update_imu(gyr[0], gyr[1], gyr[2], acc[0], acc[1], acc[2]);
+                
                 // Get setpooints
-                for(int i=0; i<3; i++)
+                if(RXcommands[4] < 250)
                 {
-                    RPY_useRates[i] = 100-(uint32_t)((abs(RXcommands[i+1])*2)*RPY_Rate[i])/1000;
-                    if(mode == 0)
-                    { // HH mode
+                    // Rate mode
+                    //
+                    // Configure rate set-point according to input stick command.
+                    // Allow direct feedforward control using RPY_useRates which varies over the range 0-100,
+                    // high rate commands cause feedforward.
+                    for(int i=0; i<3; i++)
+                    {
+                        // Configure feedforward: 0 <= RPY_useRates <= 100. RPY_useRates = 0 is complete feedforward
+                        RPY_useRates[i] = 100-(uint32_t)((abs(RXcommands[i+1])*2)*RPY_Rate[i])/1000;
+           
+                        // Configure rate controller setpoint = RXcommand * (0-1000)/100 so max -5000->5000.
+                        // This brings the value in line with the uncalibrated Gyro values: when calibrated, this should
+                        // be modified accordingly.
                         setpoint[i] = ((RXcommands[i+1])*RC_Rate/100);
                     }
                 }
+                else
+                {
+                    
+                    // Attitude mode
+                    //
+                    // Configure rate set-point according to error in current attitude
+                    
+                    // Disable feedforward
+                    RPY_useRates[0] = 100;
+                    RPY_useRates[1] = 100;
+                    RPY_useRates[2] = 100;
+                
+                    // Calcualte pitch in degrees
+                    imu_roll = -180/3.141*asinf(2.0f*(q0*q2 - q3*q1));
+                    imu_pitch = 180/3.141*atan2f(2.0f*(q0*q1 + q2*q3), 1.0f-2.0f*(q1*q1+q2*q2));
+                    imu_yaw = 180/3.141*atan2f(2.0f*(q0*q3 + +q1*q2), 1.0f - 2.0f*(q2*q2+q3*q3));
+                
+                    req_roll = 0.05*RXcommands[1];
+                    req_pitch = 0.05*RXcommands[2];
+                    
+                    // Implement Q&D proprtional controller. Sticks scaled to 25 degrees max.                    
+                    setpoint[0] = 60 * (req_roll-imu_roll);
+                    setpoint[1] = 60 * (req_pitch-imu_pitch);
+                    setpoint[2] = RXcommands[3]*RC_Rate/100;
+                    
+                }
+                
+                
+            
+                            
+                
                 
                 // PID controller (time is not implemented because of a fix loop time)
                 for(int i=0; i<3; i++)
                 {
                     // Error
+                    // Gyro is a raw value, max 2000deg/s
                     int32_t error = setpoint[i]-((GyroXYZ[i])*RPY_useRates[i]/100);
                     
                     // Proportional
@@ -180,6 +229,8 @@ int main(void)
                         PIDdata[i] = PT+IT+DT;
                     }
                 }
+                
+                
                 
                 // Set motor duty cycle
                 set_motorpwm(PIDdata, RXcommands, (state_next == ARMED) && (RXcommands[0] > MIN_THROTTLE));

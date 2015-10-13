@@ -105,6 +105,8 @@
     #define RADIO_GPIO_CE_PORT        GPIOB
     #define RADIO_GPIO_CE             GPIO_Pin_8
 #endif
+    
+#define IMU_CALIB_CYCLES    500
 
 // System headers
 #include <stdbool.h>
@@ -122,6 +124,7 @@
 #include "motorpwm.h"
 #include "timer.h"
 #include "rfproto.h"
+#include "imu.h"
 
 // Preprocessor functions
 #define abs(x) ((x) > 0 ? (x) : -(x))
