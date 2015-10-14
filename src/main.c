@@ -149,7 +149,7 @@ int main(void)
                 // Update IMU
                 timer_imu_start = micros();
                 // Note the order of gyro inputs: set to maintain RPY needs further investigation
-                update_imu(gyr[1], -gyr[0], gyr[2], acc[0], acc[1], acc[2]);
+                update_imu(gyr[0], gyr[1], gyr[2], acc[0], acc[1], acc[2]);
                 timer_imu = micros()-timer_imu_start;
                 
                 // Get setpooints
@@ -183,10 +183,14 @@ int main(void)
                     RPY_useRates[1] = 100;
                     RPY_useRates[2] = 100;
                 
-                    // Calcualte pitch in degrees
-                    imu_roll = -180/3.141*asinf(2.0f*(q0*q2 - q3*q1));
-                    imu_pitch = 180/3.141*atan2f(2.0f*(q0*q1 + q2*q3), 1.0f-2.0f*(q1*q1+q2*q2));
-                    imu_yaw = 180/3.141*atan2f(2.0f*(q0*q3 + +q1*q2), 1.0f - 2.0f*(q2*q2+q3*q3));
+                    // Calcualte pitch in degrees (quaternian to Tait-Bryan)
+                    imu_roll  = (180/3.14159) * atan2f(q2*q3 + q0*q1, 0.5f - (q1*q1 + q2*q2));
+                    imu_pitch = (180/3.14159) *  asinf(-2.0f*(q1*q3 - q0*q2));
+                    imu_yaw =   (180/3.14159) * atan2f(q1*q2 + q0*q3, 0.5f - (q2*q2 + q3*q3));
+   
+//                    imu_roll = -180/3.141*asinf(2.0f*(q0*q2 - q3*q1));
+//                    imu_pitch = 180/3.141*atan2f(2.0f*(q0*q1 + q2*q3), 1.0f-2.0f*(q1*q1+q2*q2));
+//                    imu_yaw = 180/3.141*atan2f(2.0f*(q0*q3 + +q1*q2), 1.0f - 2.0f*(q2*q2+q3*q3));
                 
                     req_roll = 0.05*RXcommands[1];
                     req_pitch = 0.05*RXcommands[2];

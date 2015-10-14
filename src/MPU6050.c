@@ -3,7 +3,7 @@
 // This file is part of the CX10_fnrf project, released under the 
 // GNU General Public License, see LICENSE.md for further details.
 //
-// Copyright © 	2015 Samuel Powell
+// Copyright ï¿½ 	2015 Samuel Powell
 //				2014 Felix Niessen
 
 
@@ -121,7 +121,9 @@ void ReadMPU(float *gyr, float *acc, int16_t *GyroXYZ, int16_t *ACCXYZ, int16_t 
 				calibGyro[i]= calibGyro[i]/IMU_CALIB_CYCLES;
                 calibAcc[i] = calibAcc[i]/IMU_CALIB_CYCLES;
 			}
-            calibAcc[2] -= 4096; // Add in gravity.
+            // Add back in gravity (1g) in +ve Z-axis. Calibration is subtracted
+            // so this is entered as a negative value.
+            calibAcc[2] -= 4096;
             
 			GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDon);			
 		}

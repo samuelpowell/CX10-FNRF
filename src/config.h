@@ -92,8 +92,11 @@
 	#define LED2_PORT GPIOB
 	#define LED2_BIT GPIO_Pin_1
 
-	#define GYRO_ORIENTATION(X, Y, Z) {GyroXYZ[0] = X; GyroXYZ[1] = Y; GyroXYZ[2] = -Z;}
-	#define ACC_ORIENTATION(X, Y, Z)  {ACCXYZ[0]  = Y; ACCXYZ[1]  =  -X; ACCXYZ[2]  =  Z;}
+    // +ve x is the forward longitudinal
+    // +ve y is starboard
+    // +ve z is downwards
+	#define GYRO_ORIENTATION(X, Y, Z) {GyroXYZ[0] = X; GyroXYZ[1] = -Y; GyroXYZ[2] = -Z;}
+	#define ACC_ORIENTATION(X, Y, Z)  {ACCXYZ[0]  = -X; ACCXYZ[1]  = +Y; ACCXYZ[2]  = Z;}
 
     #define RADIO_SPI_PORT            GPIOB
     #define RADIO_SPI_CS_PORT         GPIOA
