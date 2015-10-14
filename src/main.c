@@ -36,6 +36,9 @@ int main(void)
     int16_t I2C_Errors = 0;
     uint16_t calibGyroDone = IMU_CALIB_CYCLES;
     
+    int32_t timer_imu_start= 0;
+    static int32_t timer_imu =0;
+    
     static float imu_pitch, imu_roll, imu_yaw, req_pitch, req_roll;
     
     static const uint16_t RC_Rate = RC_RATE;
@@ -123,7 +126,7 @@ int main(void)
             case DISARMED:
                 // Await a valid arming request, move to armed state when received
                 set_blink_style(BLINKER_DISARM);
-                failsafe = rx_rf(RXcommands) ? 0 : failsafe+1;
+                failsafe = rx_rf(RXcommands) ? 0 : constrain(failsafe+1, 0, 100);
                 if(RXcommands[4] > 150 && failsafe < 10 && RXcommands[0] <= 150) state_next = ARMED;    
                 break;
                         
@@ -133,7 +136,7 @@ int main(void)
                 // disarm if there is an RF failure or if it commanded.
                 set_blink_style(BLINKER_ON);
                 ReadMPU(gyr, acc, GyroXYZ, ACCXYZ, angle, &I2C_Errors, &calibGyroDone);
-                failsafe = rx_rf(RXcommands) ? 0 : failsafe+1;
+                failsafe = rx_rf(RXcommands) ? 0 : constrain(failsafe+1, 0, 100);
                 
                 // Disarm on RF failsafe or user command
                 if(failsafe > 10 || RXcommands[4] <= 150)
@@ -142,8 +145,11 @@ int main(void)
                     state_next = DISARMED;
                 }
                 
+                
                 // Update IMU
+                timer_imu_start = micros();
                 update_imu(gyr[0], gyr[1], gyr[2], acc[0], acc[1], acc[2]);
+                timer_imu = micros()-timer_imu_start;
                 
                 // Get setpooints
                 if(RXcommands[4] < 250)
@@ -240,7 +246,7 @@ int main(void)
                 
                 if(millis()-last_Time > 100) // 10Hz
                 {
-                    failsafe++; // RX should send with ~50Hz so it should not be higher then 10 as long as there is a good signal
+                    
                     last_Time = millis();
                    
                     if(LiPoEmptyWaring == 350)
