@@ -148,7 +148,8 @@ int main(void)
                 
                 // Update IMU
                 timer_imu_start = micros();
-                update_imu(gyr[0], gyr[1], gyr[2], acc[0], acc[1], acc[2]);
+                // Note the order of gyro inputs: set to maintain RPY needs further investigation
+                update_imu(gyr[1], -gyr[0], gyr[2], acc[0], acc[1], acc[2]);
                 timer_imu = micros()-timer_imu_start;
                 
                 // Get setpooints
