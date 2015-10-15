@@ -164,6 +164,12 @@ bool rx_rf(int16_t *RXcommands)
             if((uint8_t) rxbuffer[3] > 0xF0) RXcommands[4] = 500;
             if((uint8_t) rxbuffer[3] < 0x0F) RXcommands[4] = -500;
         }
+        
+        // Right flip sets AUX2 high, backwards flip sets AUX2 low
+        if( rxbuffer[7] & 0x0F ) {
+            if((uint8_t) rxbuffer[4] > 0xF0) RXcommands[5] = 500;
+            if((uint8_t) rxbuffer[4] < 0x0F) RXcommands[5] = -500;
+        }
         #endif
         
         
@@ -190,6 +196,14 @@ bool rx_rf(int16_t *RXcommands)
             if(RXcommands[2] >  450) RXcommands[4] = 500;
             if(RXcommands[2] < -450) RXcommands[4] = -500;
         }
+        
+        // Right flip sets AUX2 high, backwards flip sets AUX2 low
+        if( rxbuffer[16] & 0x10 )
+        {
+            if(RXcommands[1] >  450) RXcommands[5] = 500;
+            if(RXcommands[1] < -450) RXcommands[5] = -500;
+        }
+          
                 
         // Implement rates to match CX10 REDV1
         switch(mode)

@@ -27,7 +27,7 @@ int main(void)
     static const float cmd_rad_scale = RC_CMD_RAD_SCALE;
  
     uint8_t failsafe = 100;
-    int16_t RXcommands[6] = {0,500,500,500,-500,500};
+    int16_t RXcommands[6] = {0,500,500,500,-500,-500};
     
     // IMU
     float gyr[3];   // Calibrated gyro readings [rad/s]
@@ -161,10 +161,10 @@ int main(void)
                 update_imu(gyr[0], gyr[1], gyr[2], acc[0], acc[1], acc[2]);
                 timer_imu = micros()-timer_imu_start;
                 
-                // TODO: move configuration to radio
-                if(RXcommands[4] < 250) fmode = RATE;
-                else fmode = ATTITUDE;
-
+                // Choose flight mode based upon AUX2
+                if(RXcommands[5] < 0) fmode = RATE;
+                if(RXcommands[5] >= 0) fmode = ATTITUDE;
+                
                 switch(fmode)
                 {
                     case RATE:
