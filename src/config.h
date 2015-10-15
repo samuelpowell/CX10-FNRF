@@ -25,17 +25,37 @@
 
 // RC Settings
 #define RC_RATE 460         // 100-990
+
+// Rate mode feedforward scaling [%]
 #define RC_ROLL_RATE 88     // 0-100
 #define RC_PITCH_RATE 88    // 0-100
 #define RC_YAW_RATE 88      // 0-100
 
+// Math floating point constants
+#define PI_F                3.14159265358979323f
+#define PI_2_F              1.57079632679489661f
+#define PI_4_F              0.78539816339744830f
+
+// RC calibrated settings
+#define RC_MAX_RPS          8*PI_F          // Maximum rate commanded [rad/s]
+#define RC_MAX_RAD          PI_4_F          // Maximum attitude command [rad]
+
+#define RC_CMD_RPS_SCALE    RC_MAX_RPS/500  // Convert stick to rate in rad/s
+#define RC_CMD_RAD_SCALE    RC_MAX_RAD/500  // Convert stick to attitude in rad
+
+// PWM scaling
+#define PID_PWM_SCALE       100             // Convert rate PID to duty cycle
+
+// Attitude PID (scale [rad] error to [rad/s] setpoint on rate controller)
+#define PID_ATTD_P          RC_MAX_RPS/4
+
 // Channel order (TAER12)
 #define RC_CHAN_ORDER 0,1,2,3,4,5
 
-// Force serial output (pin A9 & A10) 
-// Serial is active by default on REDV1, and can be anabled for other
-// boards, though they cannot be flown whilst in this mode.
-//#define FORCE_SERIAL
+// Array elements
+#define R    0
+#define P    1
+#define Y    2
 
 // Configure radio chipset and protocol according to device
 #ifdef CX10_REDV1
@@ -133,14 +153,8 @@
 #define abs(x) ((x) > 0 ? (x) : -(x))
 #define constrain(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
 
-
 // Global variables
-
-extern int8_t Armed;
 extern int16_t LiPoVolt;
-extern int16_t GyroXYZ[3];
-extern int16_t ACCXYZ[3];
-extern int16_t I2C_Errors;
-extern uint16_t calibGyroDone;
-extern uint8_t failsafe;
-extern int16_t angle[3];
+
+
+
