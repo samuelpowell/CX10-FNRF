@@ -14,6 +14,7 @@ uint8_t failsafe = 100;
 uint8_t mode = 0;
 
 enum states { INIT, BIND, CALIBRATING, DISARMED, ARMED, ARMED_LOWBAT };
+enum fmodes { RATE, ATTITUDE };
 
 int main(void)
 {
@@ -52,6 +53,8 @@ int main(void)
     
     static enum states state = INIT;
     static enum states state_next = INIT;
+    
+    static enum fmodes fmode = RATE;
     
     // Startup code calls SystemInit: system clock is configured 
     
@@ -127,7 +130,7 @@ int main(void)
                 // Await a valid arming request, move to armed state when received
                 set_blink_style(BLINKER_DISARM);
                 failsafe = rx_rf(RXcommands) ? 0 : constrain(failsafe+1, 0, 100);
-                if(RXcommands[4] > 150 && failsafe < 10 && RXcommands[0] <= 150) state_next = ARMED;    
+                if(RXcommands[4] > 150 && failsafe < 50 && RXcommands[0] <= 150) state_next = ARMED;    
                 break;
                         
             case ARMED:
@@ -139,72 +142,57 @@ int main(void)
                 failsafe = rx_rf(RXcommands) ? 0 : constrain(failsafe+1, 0, 100);
                 
                 // Disarm on RF failsafe or user command
-                if(failsafe > 10 || RXcommands[4] <= 150)
+                if(failsafe > 50 || RXcommands[4] <= 150)
                 {
                     RXcommands[0] = 0;
-                    state_next = DISARMED;
+                    state_next = BIND;
                 }
-                
                 
                 // Update IMU
                 timer_imu_start = micros();
-                // Note the order of gyro inputs: set to maintain RPY needs further investigation
                 update_imu(gyr[0], gyr[1], gyr[2], acc[0], acc[1], acc[2]);
                 timer_imu = micros()-timer_imu_start;
                 
-                // Get setpooints
-                if(RXcommands[4] < 250)
+                // TODO: move configuration to radio
+                if(RXcommands[4] < 250) fmode = RATE;
+                else fmode = ATTITUDE;
+                
+                switch(fmode)
                 {
-                    // Rate mode
-                    //
-                    // Configure rate set-point according to input stick command.
-                    // Allow direct feedforward control using RPY_useRates which varies over the range 0-100,
-                    // high rate commands cause feedforward.
-                    for(int i=0; i<3; i++)
-                    {
-                        // Configure feedforward: 0 <= RPY_useRates <= 100. RPY_useRates = 0 is complete feedforward
-                        RPY_useRates[i] = 100-(uint32_t)((abs(RXcommands[i+1])*2)*RPY_Rate[i])/1000;
-           
-                        // Configure rate controller setpoint = RXcommand * (0-1000)/100 so max -5000->5000.
-                        // This brings the value in line with the uncalibrated Gyro values: when calibrated, this should
-                        // be modified accordingly.
-                        setpoint[i] = ((RXcommands[i+1])*RC_Rate/100);
-                    }
-                }
-                else
-                {
-                    
-                    // Attitude mode
-                    //
-                    // Configure rate set-point according to error in current attitude
-                    
-                    // Disable feedforward
-                    RPY_useRates[0] = 100;
-                    RPY_useRates[1] = 100;
-                    RPY_useRates[2] = 100;
-                
-                    // Calcualte pitch in degrees (quaternian to Tait-Bryan)
-                    imu_roll  = (180/3.14159) * atan2f(q2*q3 + q0*q1, 0.5f - (q1*q1 + q2*q2));
-                    imu_pitch = (180/3.14159) *  asinf(-2.0f*(q1*q3 - q0*q2));
-                    imu_yaw =   (180/3.14159) * atan2f(q1*q2 + q0*q3, 0.5f - (q2*q2 + q3*q3));
-   
-//                    imu_roll = -180/3.141*asinf(2.0f*(q0*q2 - q3*q1));
-//                    imu_pitch = 180/3.141*atan2f(2.0f*(q0*q1 + q2*q3), 1.0f-2.0f*(q1*q1+q2*q2));
-//                    imu_yaw = 180/3.141*atan2f(2.0f*(q0*q3 + +q1*q2), 1.0f - 2.0f*(q2*q2+q3*q3));
-                
-                    req_roll = 0.05*RXcommands[1];
-                    req_pitch = 0.05*RXcommands[2];
-                    
-                    // Implement Q&D proprtional controller. Sticks scaled to 25 degrees max.                    
-                    setpoint[0] = 60 * (req_roll-imu_roll);
-                    setpoint[1] = 60 * (req_pitch-imu_pitch);
-                    setpoint[2] = RXcommands[3]*RC_Rate/100;
-                    
-                }
-                
-                
-            
+                    case RATE:
+                        for(int i=0; i<3; i++)
+                        {
+                            // Configure rate controller set-point according to command [rad/s], 
+                            // and set feedforward scaline for open loop at maximum commanded rate.
                             
+                            setpoint[i] = ((RXcommands[i+1])*RC_Rate/100);       
+                            RPY_useRates[i] = 100-(uint32_t)((abs(RXcommands[i+1])*2)*RPY_Rate[i])/1000;   
+                        }   
+                        break;
+                        
+                    case ATTITUDE:
+                        
+                        // Configure rate controller [rad/s] according using outer P controller on the 
+                        // attidue error [rad].
+                    
+                        // Calcualte pitch in degrees (quaternian to Tait-Bryan)
+                        imu_roll  = (180/3.14159) * atan2f(q2*q3 + q0*q1, 0.5f - (q1*q1 + q2*q2));
+                        imu_pitch = (180/3.14159) *  asinf(-2.0f*(q1*q3 - q0*q2));
+                        imu_yaw =   (180/3.14159) * atan2f(q1*q2 + q0*q3, 0.5f - (q2*q2 + q3*q3));
+                    
+                        // Calculate commanded attitude [rad]
+                        req_roll = 0.05*RXcommands[1];
+                        req_pitch = 0.05*RXcommands[2];
+                        
+                        // Implement Q&D proprtional controller. Sticks scaled to 25 degrees max.                    
+                        setpoint[0] = 60 * (req_roll-imu_roll);
+                        setpoint[1] = 60 * (req_pitch-imu_pitch);
+                        setpoint[2] = RXcommands[3]*RC_Rate/100;
+                        
+                        // Disable feedforward
+                        for(int i=0; i<3; i++) RPY_useRates[i] = 100;
+                        break;
+                }
                 
                 
                 // PID controller (time is not implemented because of a fix loop time)
@@ -240,8 +228,6 @@ int main(void)
                         PIDdata[i] = PT+IT+DT;
                     }
                 }
-                
-                
                 
                 // Set motor duty cycle
                 set_motorpwm(RXcommands[0], PIDdata, (state_next == ARMED) && (RXcommands[0] > MIN_THROTTLE));
