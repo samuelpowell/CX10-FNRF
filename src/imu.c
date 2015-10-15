@@ -3,7 +3,7 @@
 // This file is part of the CX10_fnrf project, released under the
 // GNU General Public License, see LICENSE.md for further details.
 //
-// Copyright © 	2015 Samuel Powell
+// Copyright ©  2015 Samuel Powell
 //              2011 Sebastian Madgwick
 
 // Overview
@@ -20,8 +20,8 @@
 
 // Defines
 #define sampleFreq	512.0f			// sample frequency in Hz
-#define twoKpDef	(2.0f * 1.0f)	// 2 * proportional gain
-#define twoKiDef	(2.0f * 0.1f)	// 2 * integral gain
+#define twoKpDef	0.0f;//(2.0f * 1.0f)	// 2 * proportional gain
+#define twoKiDef	0.0f;//(2.0f * 0.1f)	// 2 * integral gain
 
 // Variables
 volatile float twoKp = twoKpDef;											// 2 * proportional gain (Kp)

@@ -26,7 +26,7 @@ int main(void)
     static const float cmd_rps_scale = RC_CMD_RPS_SCALE;
     static const float cmd_rad_scale = RC_CMD_RAD_SCALE;
  
-    uint8_t failsafe = 100;
+    uint16_t failsafe = 1000;
     int16_t RXcommands[6] = {0,500,500,500,-500,-500};
     
     // IMU
@@ -136,9 +136,8 @@ int main(void)
             case DISARMED:
                 // Await a valid arming request, move to armed state when received
                 set_blink_style(BLINKER_DISARM);
-                failsafe = rx_rf(RXcommands) ? 0 : constrain(failsafe+1, 0, 100);
-                if(RXcommands[4] > 150 && failsafe < 50 && RXcommands[0] <= 150) state_next = ARMED;  
-                if(failsafe > 50) state_next = BIND;            
+                failsafe = rx_rf(RXcommands) ? 0 : constrain(failsafe+1, 0, 500);
+                if(RXcommands[4] > 150 && failsafe < 500 && RXcommands[0] <= 150) state_next = ARMED;  
                 break;
                         
             case ARMED:
@@ -147,13 +146,13 @@ int main(void)
                 // disarm if there is an RF failure or if it commanded.
                 set_blink_style(BLINKER_ON);
                 ReadMPU(gyr, acc, &I2C_Errors, &calibGyroDone);
-                failsafe = rx_rf(RXcommands) ? 0 : constrain(failsafe+1, 0, 100);
+                failsafe = rx_rf(RXcommands) ? 0 : constrain(failsafe+1, 0, 500);
                 
                 // Disarm on RF failsafe or user command
-                if(failsafe > 50 || RXcommands[4] <= 150)
+                if(failsafe > 500 || RXcommands[4] <= 150)
                 {
                     RXcommands[0] = 0;
-                    state_next = BIND;
+                    state_next = DISARMED;
                 }
                 
                 // Update IMU
@@ -171,9 +170,12 @@ int main(void)
                         for(int i=0; i<3; i++)
                         {
                             // Configure rate controller set-point according to command [rad/s], 
-                            // and set feedforward scaline for open loop at maximum commanded rate.
+                            // and set feedforward scaling for open loop at maximum commanded rate.
                             
                             setpoint[i] = RXcommands[i+1]*cmd_rps_scale;
+                            
+                            // Disable feedforward
+                            for(int i=0; i<3; i++) RPY_useRates[i] = 100;
                             RPY_useRates[i] = 100-(uint32_t)((abs(RXcommands[i+1])*2)*RPY_Rate[i])/1000;   
                         }   
                         break;
@@ -240,8 +242,7 @@ int main(void)
                     }
                 }
                 
-                // Set motor duty cycle
-                set_motorpwm(RXcommands[0], PIDdata, (state_next == ARMED) && (RXcommands[0] > MIN_THROTTLE));
+               
                 
                 // Sample the battery voltage
                 ADC_StartOfConversion(ADC1);
@@ -266,6 +267,10 @@ int main(void)
                 break;
                 
         }
+        
+         // Always set motor duty cycle
+        bool EN =  (state_next == ARMED) && (state == ARMED) && (RXcommands[0] > 10);
+        set_motorpwm(RXcommands[0], PIDdata, EN);
         
         looptime = micros()-CycleStart;
         while(micros()-CycleStart<minCycleTime);

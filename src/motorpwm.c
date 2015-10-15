@@ -5,7 +5,7 @@
 // This file is part of the CX10_fnrf project, released under the
 // GNU General Public License, see LICENSE.md for further details.
 //
-// Copyright © 	2015 Samuel Powell
+// Copyright ©  2015 Samuel Powell
 //				2014 Felix Niessen
 
 // Overview
@@ -16,7 +16,7 @@
 
 #include "config.h"
 
-#define MOTORPWM_DUTY_MIN 25
+#define MOTORPWM_DUTY_MIN 50
 #define MOTORPWM_DUTY_MAX 1000
 
 // Initialise timers, GPIO, and output capture for PWM
@@ -120,9 +120,9 @@ void init_motorpwm()
 // Set duty cycle of motor outputs (if ENabled)
 void set_motorpwm(int16_t throttle, int16_t *PIDdata, bool EN)
 {
-    int16_t motorpwm[4];
-    mixer(throttle, PIDdata, motorpwm, MOTORPWM_DUTY_MIN, EN ? MOTORPWM_DUTY_MAX : 0);
-    
+    int16_t motorpwm[4] = {0,0,0,0}; 
+    if(EN)  mixer(throttle, PIDdata, motorpwm, MOTORPWM_DUTY_MIN, MOTORPWM_DUTY_MAX);
+
     #if defined(CX10_REDV1)
     TIM1->CCR1  = motorpwm[0]; // FL
     TIM1->CCR4  = motorpwm[1]; // FR

@@ -3,7 +3,7 @@
 // This file is part of the CX10_fnrf project, released under the
 // GNU General Public License, see LICENSE.md for further details.
 //
-// Copyright © 	2015 Samuel Powell
+// Copyright ©  2015 Samuel Powell
 //              2015 Goebish
 //              2015 Bart Slinger
 
@@ -249,20 +249,21 @@ void bind_rf() {
                          0x00,                      // BIND
                          0x00, 0xDC, 0x05, 0xE8, 0x03, 0xDC, 0x05, 0x00, 0x00};
 
-    // Set RX/TX address
-    nrfWriteReg(REG_RX_ADDR_P0, (char *) rf_addr_bind, 5);
-    nrfWriteReg(REG_TX_ADDR, (char *) rf_addr_bind, 5);
-
-    // Power up, set RF channel
-    nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_CRCO | NRF24_PWR_UP | NRF24_PRIM_RX));
-    nrfWrite1Reg(REG_RF_CH, RF_BIND_CHANNEL); // Channel 0x02
+    
 
     while(!bind) {
 
+        // Set RX/TX address
+        nrfWriteReg(REG_RX_ADDR_P0, (char *) rf_addr_bind, 5);
+        nrfWriteReg(REG_TX_ADDR, (char *) rf_addr_bind, 5);
+
+        // Power up, set RF channel
+        nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_CRCO | NRF24_PWR_UP | NRF24_PRIM_RX));
+        nrfWrite1Reg(REG_RF_CH, RF_BIND_CHANNEL); // Channel 0x02
 
         // STEP 1: Await bind packet
 
-        // Wait until we receive a data packet, flashing alternately
+        // Wait until we receive a data packet,
         RADIO_EN_CE();
         while(!(nrfGetStatus() & 0x40));
 

@@ -24,12 +24,13 @@ void TIM17_IRQHandler(void) {
         
         switch(blink_style)
         {
-         
+            // All on
             case BLINKER_ON:
                 GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDon);
                 GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDon);
                 break;
             
+            // Flash front
             case BLINKER_BIND:
                 if(phase) {
                     GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDon);
@@ -37,15 +38,17 @@ void TIM17_IRQHandler(void) {
                 }
                 else {
                     GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDoff);
-                    GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDon);
+                    GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDoff);
                 }
                 break;
-                
+            
+            // Front on
             case BLINKER_DISARM:
                 GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDon);
                 GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDoff);
                 break;
 
+            // Flash front and back alternately
             case BLINKER_LOWBAT:
                 if(phase) {
                     GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDon);

@@ -6,7 +6,7 @@
 
 // Throttle settings
 #define MIN_COMMAND  80      // controll starts if throttle is higher then that 
-#define MIN_THROTTLE 25     // minimum speed for the motors
+#define MIN_THROTTLE 20     // minimum speed for the motors
 
 // P term 40 == 4.0
 #define GYRO_P_ROLL  45
@@ -37,7 +37,7 @@
 #define PI_4_F              0.78539816339744830f
 
 // RC calibrated settings
-#define RC_MAX_RPS          8*PI_F          // Maximum rate commanded [rad/s]
+#define RC_MAX_RPS          PI_F            // Maximum rate commanded [rad/s]
 #define RC_MAX_RAD          PI_4_F          // Maximum attitude command [rad]
 
 #define RC_CMD_RPS_SCALE    RC_MAX_RPS/500  // Convert stick to rate in rad/s
@@ -47,7 +47,7 @@
 #define PID_PWM_SCALE       100             // Convert rate PID to duty cycle
 
 // Attitude PID (scale [rad] error to [rad/s] setpoint on rate controller)
-#define PID_ATTD_P          RC_MAX_RPS/4
+#define PID_ATTD_P          10.0f
 
 // Channel order (TAER12)
 #define RC_CHAN_ORDER 0,1,2,3,4,5
