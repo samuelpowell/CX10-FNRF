@@ -7,14 +7,15 @@
 
   <Targets>
     <Target>
-      <TargetName>CX10_RED</TargetName>
+      <TargetName>CX10</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pCCUsed>5060020::V5.06 (build 20)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F031K6</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F0xx_DFP.1.2.0</PackID>
+          <PackID>Keil.STM32F0xx_DFP.1.4.0</PackID>
           <PackURL>http://www.keil.com/pack/</PackURL>
           <Cpu>IROM(0x08000000,0x8000) IRAM(0x20000000,0x1000) CPUTYPE("Cortex-M0") CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -84,6 +85,8 @@
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
+            <nStopA1X>0</nStopA1X>
+            <nStopA2X>0</nStopA2X>
           </AfterMake>
           <SelectedForBatchBuild>0</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
@@ -224,9 +227,10 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>0</useUlib>
+            <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
+            <nSecure>0</nSecure>
             <RoSelD>3</RoSelD>
             <RwSelD>3</RwSelD>
             <CodeSel>0</CodeSel>
@@ -361,6 +365,10 @@
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
             <useXO>0</useXO>
+            <v6Lang>0</v6Lang>
+            <v6LangP>0</v6LangP>
+            <vShortEn>0</vShortEn>
+            <vShortWch>0</vShortWch>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER</Define>
@@ -414,6 +422,11 @@
               <FilePath>.\src\main.c</FilePath>
             </File>
             <File>
+              <FileName>blinker.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\blinker.c</FilePath>
+            </File>
+            <File>
               <FileName>MPU6050.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\MPU6050.c</FilePath>
@@ -422,11 +435,6 @@
               <FileName>adc.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\adc.c</FilePath>
-            </File>
-            <File>
-              <FileName>serial.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\serial.c</FilePath>
             </File>
             <File>
               <FileName>timer.c</FileName>
@@ -444,19 +452,24 @@
               <FilePath>.\src\system_stm32f0xx.c</FilePath>
             </File>
             <File>
-              <FileName>RX.c</FileName>
+              <FileName>nrf24.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\RX.c</FilePath>
+              <FilePath>.\src\nrf24.c</FilePath>
             </File>
             <File>
-              <FileName>nrf24l01.c</FileName>
+              <FileName>motorpwm.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\nrf24l01.c</FilePath>
+              <FilePath>.\src\motorpwm.c</FilePath>
             </File>
             <File>
-              <FileName>nrf24RX.c</FileName>
+              <FileName>rfproto.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\nrf24RX.c</FilePath>
+              <FilePath>.\src\rfproto.c</FilePath>
+            </File>
+            <File>
+              <FileName>imu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\imu.c</FilePath>
             </File>
           </Files>
         </Group>

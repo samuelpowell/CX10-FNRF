@@ -207,36 +207,36 @@ WEAK]
   130 00000000         
   131 00000000         
   132 00000000         
-  133 00000000 480F            LDR              R0, =__initial_sp ; set stack p
+  133 00000000 480C            LDR              R0, =__initial_sp ; set stack p
                                                             ointer 
   134 00000002 F380 8808       MSR              MSP, R0
   135 00000006         
   136 00000006         ;;Check if boot space corresponds to test memory 
   137 00000006         
-  138 00000006 480F            LDR              R0,=0x00000004
+  138 00000006 480C            LDR              R0,=0x00000004
   139 00000008 6801            LDR              R1, [R0]
   140 0000000A 0E09            LSRS             R1, R1, #24
-  141 0000000C 4A0E            LDR              R2,=0x1F
+  141 0000000C 4A0B            LDR              R2,=0x1F
   142 0000000E 4291            CMP              R1, R2
   143 00000010         
   144 00000010 D105            BNE              ApplicationStart
   145 00000012         
   146 00000012         ;; SYSCFG clock enable    
   147 00000012         
-  148 00000012 480E            LDR              R0,=0x40021018
-  149 00000014 490E            LDR              R1,=0x00000001
+  148 00000012 480B            LDR              R0,=0x40021018
+  149 00000014 490B            LDR              R1,=0x00000001
   150 00000016 6001            STR              R1, [R0]
   151 00000018         
   152 00000018         ;; Set CFGR1 register with flash memory remap at address
                         0
   153 00000018         
-  154 00000018 480E            LDR              R0,=0x40010000
-  155 0000001A 490F            LDR              R1,=0x00000000
+  154 00000018 480B            LDR              R0,=0x40010000
+  155 0000001A 490C            LDR              R1,=0x00000000
   156 0000001C 6001            STR              R1, [R0]
   157 0000001E         ApplicationStart
-  158 0000001E 480F            LDR              R0, =SystemInit
+  158 0000001E 480C            LDR              R0, =SystemInit
   159 00000020 4780            BLX              R0
-  160 00000022 480F            LDR              R0, =__main
+  160 00000022 480C            LDR              R0, =__main
   161 00000024 4700            BX               R0
   162 00000026                 ENDP
   163 00000026         
@@ -397,23 +397,15 @@ ARM Macro Assembler    Page 7
   259 00000034         ;*******************************************************
                        ************************
   260 00000034                 IF               :DEF:__MICROLIB
-  267 00000034         
-  268 00000034                 IMPORT           __use_two_region_memory
-  269 00000034                 EXPORT           __user_initial_stackheap
-  270 00000034         
-  271 00000034         __user_initial_stackheap
-  272 00000034         
-  273 00000034 480B            LDR              R0, =  Heap_Mem
-  274 00000036 490C            LDR              R1, =(Stack_Mem + Stack_Size)
-  275 00000038 4A0C            LDR              R2, = (Heap_Mem +  Heap_Size)
-  276 0000003A 4B0D            LDR              R3, = Stack_Mem
-  277 0000003C 4770            BX               LR
-  278 0000003E         
-  279 0000003E 00 00           ALIGN
-  280 00000040         
-  281 00000040                 ENDIF
-  282 00000040         
-  283 00000040                 END
+  261 00000034         
+  262 00000034                 EXPORT           __initial_sp
+  263 00000034                 EXPORT           __heap_base
+  264 00000034                 EXPORT           __heap_limit
+  265 00000034         
+  266 00000034                 ELSE
+  281                          ENDIF
+  282 00000034         
+  283 00000034                 END
               00000000 
               00000004 
               0000001F 
@@ -423,16 +415,13 @@ ARM Macro Assembler    Page 7
               00000000 
               00000000 
               00000000 
-              00000000 
-              00000400 
-              00000200 
-              00000000 
-Command Line: --debug --xref --cpu=Cortex-M0 --apcs=interwork --depend=.\obj\st
-artup_stm32f0xx_mdk_arm.d -o.\obj\startup_stm32f0xx_mdk_arm.o -I"\vmware-host\S
-hared Folders\Documents\cx10_fnrf\RTE" -IC:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP
-\1.2.0\Device\Include -IC:\Keil_v5\ARM\CMSIS\Include --predefine="__EVAL SETA 1
-" --predefine="STM32F031 SETA 1" --list=.\listings\startup_stm32f0xx_mdk_arm.ls
-t startup\startup_stm32f0xx_mdk_arm.s
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M0 --apcs=interw
+ork --depend=.\obj\startup_stm32f0xx_mdk_arm.d -o.\obj\startup_stm32f0xx_mdk_ar
+m.o -IZ:\Documents\cx10_fnrf\RTE -IC:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.4.0
+\Device\Include -IC:\Keil_v5\ARM\CMSIS\Include --predefine="__EVAL SETA 1" --pr
+edefine="__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 516" --predefin
+e="STM32F031 SETA 1" --list=.\listings\startup_stm32f0xx_mdk_arm.lst startup\st
+artup_stm32f0xx_mdk_arm.s
 
 
 
@@ -453,9 +442,8 @@ Symbol: Stack_Mem
    Definitions
       At line 43 in file startup\startup_stm32f0xx_mdk_arm.s
    Uses
-      At line 274 in file startup\startup_stm32f0xx_mdk_arm.s
-      At line 276 in file startup\startup_stm32f0xx_mdk_arm.s
-
+      None
+Comment: Stack_Mem unused
 __initial_sp 00000400
 
 Symbol: __initial_sp
@@ -464,6 +452,7 @@ Symbol: __initial_sp
    Uses
       At line 68 in file startup\startup_stm32f0xx_mdk_arm.s
       At line 133 in file startup\startup_stm32f0xx_mdk_arm.s
+      At line 262 in file startup\startup_stm32f0xx_mdk_arm.s
 
 3 symbols
 
@@ -486,25 +475,24 @@ Symbol: Heap_Mem
    Definitions
       At line 55 in file startup\startup_stm32f0xx_mdk_arm.s
    Uses
-      At line 273 in file startup\startup_stm32f0xx_mdk_arm.s
-      At line 275 in file startup\startup_stm32f0xx_mdk_arm.s
-
+      None
+Comment: Heap_Mem unused
 __heap_base 00000000
 
 Symbol: __heap_base
    Definitions
       At line 54 in file startup\startup_stm32f0xx_mdk_arm.s
    Uses
-      None
-Comment: __heap_base unused
+      At line 263 in file startup\startup_stm32f0xx_mdk_arm.s
+Comment: __heap_base used once
 __heap_limit 00000200
 
 Symbol: __heap_limit
    Definitions
       At line 56 in file startup\startup_stm32f0xx_mdk_arm.s
    Uses
-      None
-Comment: __heap_limit unused
+      At line 264 in file startup\startup_stm32f0xx_mdk_arm.s
+Comment: __heap_limit used once
 4 symbols
 
 
@@ -914,15 +902,7 @@ Symbol: WWDG_IRQHandler
       At line 86 in file startup\startup_stm32f0xx_mdk_arm.s
       At line 190 in file startup\startup_stm32f0xx_mdk_arm.s
 
-__user_initial_stackheap 00000034
-
-Symbol: __user_initial_stackheap
-   Definitions
-      At line 271 in file startup\startup_stm32f0xx_mdk_arm.s
-   Uses
-      At line 269 in file startup\startup_stm32f0xx_mdk_arm.s
-Comment: __user_initial_stackheap used once
-39 symbols
+38 symbols
 
 
 
@@ -936,8 +916,7 @@ Symbol: Heap_Size
       At line 51 in file startup\startup_stm32f0xx_mdk_arm.s
    Uses
       At line 55 in file startup\startup_stm32f0xx_mdk_arm.s
-      At line 275 in file startup\startup_stm32f0xx_mdk_arm.s
-
+Comment: Heap_Size used once
 Stack_Size 00000400
 
 Symbol: Stack_Size
@@ -945,8 +924,7 @@ Symbol: Stack_Size
       At line 40 in file startup\startup_stm32f0xx_mdk_arm.s
    Uses
       At line 43 in file startup\startup_stm32f0xx_mdk_arm.s
-      At line 274 in file startup\startup_stm32f0xx_mdk_arm.s
-
+Comment: Stack_Size used once
 __Vectors_Size 000000C0
 
 Symbol: __Vectors_Size
@@ -978,13 +956,5 @@ Symbol: __main
    Uses
       At line 160 in file startup\startup_stm32f0xx_mdk_arm.s
 Comment: __main used once
-__use_two_region_memory 00000000
-
-Symbol: __use_two_region_memory
-   Definitions
-      At line 268 in file startup\startup_stm32f0xx_mdk_arm.s
-   Uses
-      None
-Comment: __use_two_region_memory unused
-3 symbols
-391 symbols in table
+2 symbols
+389 symbols in table

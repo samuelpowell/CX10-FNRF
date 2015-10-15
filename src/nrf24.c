@@ -1,68 +1,23 @@
-/*  Cheerson CX-10 integrated RF rate mode firmware.
-     - NRF24 Radio driver.
-
-    This source is mostly dervived from the Crazyflie control firmware
-    whose original GPLv3 license is repeated below.
-
-    For more details see the Bitcraze website: http://www.bitcraze.se.
-
-    All original components are provided under the GPLv3:
-
-    Copyright (C) 2015, Samuel Powell.
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
- *    ||          ____  _ __                           
- * +------+      / __ )(_) /_______________ _____  ___ 
- * | 0xBC |     / __  / / __/ ___/ ___/ __ `/_  / / _ \
- * +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
- *  ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
- *
- * Crazyflie control firmware
- *
- * Copyright (C) 2011-2012 Bitcraze AB
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, in version 3.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
- * nrf24l01.c: nRF24L01(-p) PRX mode low level driver
- */
+// nrf24.c
+// 
+// Low-level radio driver for the Nordic Semi nrf24l01, Beken2432,
+// and Panchip XN297. These IC's are broadly compatible, with some
+// special register setup required depending upon the target.
+//
+// This file is part of the CX10_fnrf project, released under the 
+// GNU General Public License, see LICENSE.md for further details.
+//
+// Copyright © 	2015 Samuel Powell
+//							2015 Goebish
+//							2015 Bart Slinger
+//							2014 Felix Niessen
 
 #include "config.h"
-#include "nrf24l01.h"
 
 #include "stm32f0xx_conf.h"
 #include "stm32f0xx_rcc.h"
 #include "stm32f0xx_spi.h"
 #include "stm32f0xx_exti.h"
-
-/* Usefull macro */
-#define RADIO_EN_CS() GPIO_ResetBits(GPIOA, RADIO_GPIO_SPI_CS)
-#define RADIO_DIS_CS() GPIO_SetBits(GPIOA, RADIO_GPIO_SPI_CS)
-#define RADIO_DIS_CE() //GPIO_ResetBits(RADIO_GPIO_CE_PORT, RADIO_GPIO_CE)
-#define RADIO_EN_CE() //GPIO_SetBits(RADIO_GPIO_CE_PORT, RADIO_GPIO_CE)
 
 /* Private variables */
 static bool isInit;
@@ -259,6 +214,23 @@ unsigned char nrfReadRX(char *buffer, int len)
   return status;
 }
 
+unsigned char nrfSendTX(char *buffer, int len)
+{
+  unsigned char status;
+  int i;
+
+  RADIO_EN_CS();
+
+  /* Send the read command with the address */
+  status = spiSendByte(CMD_W_TX_PAYLOAD);
+  /* Send LEN bytes */
+  for(i=0; i<len; i++)
+    spiSendByte(buffer[i]);
+  RADIO_DIS_CS();
+
+  return status;
+}
+
 /* Interrupt service routine, call the interrupt callback
  */
 void nrfIsr()
@@ -334,68 +306,72 @@ void nrfInit(void)
   if (isInit)
     return;
 
-	// Clocks configured in main
+    // Clocks configured in main
 	
 	// Initialise GPIO structure
-	GPIO_StructInit(&GPIO_InitStructure);
+    GPIO_StructInit(&GPIO_InitStructure);
 
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_3;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_3;
 
-//  SPI SCK pin configuration
- GPIO_InitStructure.GPIO_Pin = RADIO_GPIO_SPI_SCK;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
+    // SPI SCK pin configuration
+    GPIO_InitStructure.GPIO_Pin = RADIO_GPIO_SPI_SCK;
+    GPIO_Init(RADIO_SPI_PORT, &GPIO_InitStructure);
 
-//   SPI  MOSI pin configuration
-  GPIO_InitStructure.GPIO_Pin =  RADIO_GPIO_SPI_MOSI;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
+    // SPI  MOSI pin configuration
+    GPIO_InitStructure.GPIO_Pin =  RADIO_GPIO_SPI_MOSI;
+    GPIO_Init(RADIO_SPI_PORT, &GPIO_InitStructure);
 
-//  SPI MISO pin configuration
-  GPIO_InitStructure.GPIO_Pin = RADIO_GPIO_SPI_MISO;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
+    // SPI MISO pin configuration
+    GPIO_InitStructure.GPIO_Pin = RADIO_GPIO_SPI_MISO;
+    GPIO_Init(RADIO_SPI_PORT, &GPIO_InitStructure);
 	
-// SPI CS
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Pin = RADIO_GPIO_SPI_CS;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
+    // SPI CS pin configuration
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_Pin = RADIO_GPIO_SPI_CS;
+    GPIO_Init(RADIO_SPI_CS_PORT, &GPIO_InitStructure);
 
-  GPIO_PinAFConfig(GPIOA, RADIO_GPIO_SPI_SCK, GPIO_AF_0);
-  GPIO_PinAFConfig(GPIOA, RADIO_GPIO_SPI_MOSI, GPIO_AF_0);
-  GPIO_PinAFConfig(GPIOA, RADIO_GPIO_SPI_MISO, GPIO_AF_0);
+    // RADIO CE pin configuration
+    // NOTE: This is only used on the blue CX10, which uses a two-way protocol
+    #if defined(CX10_BLUE)
+    GPIO_InitStructure.GPIO_Pin = RADIO_GPIO_CE;
+    GPIO_Init(RADIO_GPIO_CE_PORT, &GPIO_InitStructure);
+    #endif
 
-  // disable the chip select
-  RADIO_DIS_CS();
+    // Set pin alternative functions for SPI data and clocks
+    GPIO_PinAFConfig(RADIO_SPI_PORT, RADIO_GPIO_SPI_SCK, GPIO_AF_0);
+    GPIO_PinAFConfig(RADIO_SPI_PORT, RADIO_GPIO_SPI_MOSI, GPIO_AF_0);
+    GPIO_PinAFConfig(RADIO_SPI_PORT, RADIO_GPIO_SPI_MISO, GPIO_AF_0);
 
-  // disable the chip enable
-  RADIO_DIS_CE();
-
-  /* SPI configuration */
-  SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
-  SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
-  SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
-  SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
-  SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
-  SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
-  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8;
-  SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-  SPI_InitStructure.SPI_CRCPolynomial = 7;
-  SPI_Init(RADIO_SPI, &SPI_InitStructure);
+    // Desiable the IC prior to SPI configuration
+    RADIO_DIS_CS();
+    RADIO_DIS_CE();
+  
+    // SPI configuration
+    SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
+    SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
+    SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
+    SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
+    SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
+    SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
+    SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8;
+    SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
+    SPI_InitStructure.SPI_CRCPolynomial = 7;
+    SPI_Init(RADIO_SPI, &SPI_InitStructure);
 	
 	// Set interrupt on 8-bit return
 	SPI_RxFIFOThresholdConfig(RADIO_SPI, SPI_RxFIFOThreshold_QF);
 
-  // Enable the SPI 
-  SPI_Cmd(RADIO_SPI, ENABLE);
+    // Enable SPI 
+    SPI_Cmd(RADIO_SPI, ENABLE);
   
-  isInit = true;
+    isInit = true;
 }
 
 
 bool nrfTest(void)
 {
-  //TODO implement real tests!
 	return isInit;
-//  return isInit & extiTest();
 }

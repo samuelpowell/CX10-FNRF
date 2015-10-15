@@ -1,6 +1,6 @@
 /*
 	This file is part of STM32F05x brushed Copter FW
-	Copyright © 2014 Felix Niessen ( felix.niessen@googlemail.com )
+	Copyright ï¿½ 2014 Felix Niessen ( felix.niessen@googlemail.com )
 	
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -15,7 +15,9 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-void ReadMPU(void);
-void I2C_WrReg(uint8_t Reg, uint8_t Val);
-void init_MPU6050(void);
+void ReadMPU(float *gyr, float *acc, int16_t *I2C_Errors, uint16_t *calibGyroDone);
+void I2C_WrReg(uint8_t Reg, uint8_t Val, int16_t *I2C_Errors);
+void init_MPU6050(int16_t *I2C_Errors);
 long atan2_c(long x , long y);
+
+
