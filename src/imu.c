@@ -3,13 +3,15 @@
 // This file is part of the CX10_fnrf project, released under the
 // GNU General Public License, see LICENSE.md for further details.
 //
-// Copyright ? 	2015 Samuel Powell
+// Copyright © 	2015 Samuel Powell
 //              2011 Sebastian Madgwick
 
+// Overview
+//
 // Madwick's C implementation of Mahobey's IMU alogirthm, released
 // under the GPL. Code available in its original form:
 // http://www.x-io.co.uk/open-source-imu-and-ahrs-algorithms/
-
+//
 // Vectoral measurements and angular rates are in the Tait-Bryan
 // or Euler angle sequence (1,2,3)/(x,y,z) form.
 

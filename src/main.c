@@ -3,7 +3,7 @@
 // This file is part of the CX10_fnrf project, released under the
 // GNU General Public License, see LICENSE.md for further details.
 //
-// Copyright � 	2015 Samuel Powell
+// Copyright © 	2015 Samuel Powell
 //              2015 Bart Slinger
 //              2014 Felix Niessen
 

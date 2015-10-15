@@ -16,7 +16,7 @@
 
 #include "config.h"
 
-#define MOTORPWM_DUTY_MIN 0
+#define MOTORPWM_DUTY_MIN 25
 #define MOTORPWM_DUTY_MAX 1000
 
 // Initialise timers, GPIO, and output capture for PWM
@@ -142,11 +142,11 @@ void set_motorpwm(int16_t throttle, int16_t *PIDdata, bool EN)
 void mixer(int16_t throttle, int16_t *rpy, int16_t *motorpwm, uint16_t minpwm, uint16_t maxpwm)
 {
 
-    // Mix commanded roll/pitch/yaw
-    motorpwm[0] = throttle + rpy[0] - rpy[1] - rpy[2]; // Front left:  +roll, -pitch, -yaw
-    motorpwm[1] = throttle - rpy[0] - rpy[1] + rpy[2]; // Front right: -roll, -pitch, +yaw
-    motorpwm[2] = throttle - rpy[0] + rpy[1] - rpy[2]; // Rear right:  -roll, +pitch, -yaw
-    motorpwm[3] = throttle + rpy[0] + rpy[1] + rpy[2]; // Rear left:   +roll, +pitch, +yaw
+    // Mix commanded roll/pitch/yaw into FL, FR, RR, RlL
+    motorpwm[0] = throttle + rpy[0] + rpy[1] - rpy[2]; // Front left:  +roll, +pitch, -yaw
+    motorpwm[1] = throttle - rpy[0] + rpy[1] + rpy[2]; // Front right: -roll, +pitch, +yaw
+    motorpwm[2] = throttle - rpy[0] - rpy[1] - rpy[2]; // Rear right:  -roll, -pitch, -yaw
+    motorpwm[3] = throttle + rpy[0] - rpy[1] + rpy[2]; // Rear left:   +roll, -pitch, +yaw
     
     // Contrain to minimum and maximum
     for(int i=0; i<4; i++) motorpwm[i] = constrain(motorpwm[i], minpwm, maxpwm);

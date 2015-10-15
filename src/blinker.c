@@ -3,8 +3,10 @@
 // This file is part of the CX10_fnrf project, released under the 
 // GNU General Public License, see LICENSE.md for further details.
 //
-// Copyright � 	2015 Samuel Powell
+// Copyright © 	2015 Samuel Powell
 
+// Overview
+//
 // Configure a timer to provide a low-frequency interrupt, used to
 // drive selectable illumination patterns on the LEDs.
 

@@ -3,10 +3,12 @@
 // This file is part of the CX10_fnrf project, released under the
 // GNU General Public License, see LICENSE.md for further details.
 //
-// Copyright ? 	2015 Samuel Powell
+// Copyright © 	2015 Samuel Powell
 //              2015 Goebish
 //              2015 Bart Slinger
 
+// Overview
+//
 // Implementation of the RF protocols of the red (v1) and blue CX10
 // devices. Provides functions to bind to the TX, and receive the
 // command data.
