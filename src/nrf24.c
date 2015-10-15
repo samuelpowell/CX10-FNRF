@@ -334,7 +334,7 @@ void nrfInit(void)
     GPIO_Init(RADIO_SPI_CS_PORT, &GPIO_InitStructure);
 
     // RADIO CE pin configuration
-    // NOTE: This is only used on the CX10, which uses a two-way protocol
+    // NOTE: This is only used on the blue CX10, which uses a two-way protocol
     #if defined(CX10_BLUE)
     GPIO_InitStructure.GPIO_Pin = RADIO_GPIO_CE;
     GPIO_Init(RADIO_GPIO_CE_PORT, &GPIO_InitStructure);

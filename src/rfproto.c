@@ -190,7 +190,7 @@ bool rx_rf(int16_t *RXcommands)
             if(RXcommands[2] >  450) RXcommands[4] = 500;
             if(RXcommands[2] < -450) RXcommands[4] = -500;
         }
-        
+                
         // Implement rates to match CX10 REDV1
         switch(mode)
         {
@@ -206,6 +206,9 @@ bool rx_rf(int16_t *RXcommands)
                 
         for(int i = 1; i < 4; i++)  RXcommands[i] *= ratemul;
         #endif
+        
+        // Invert elevator: negative stick -> positive pitch in FC
+        RXcommands[2] = -RXcommands[2];
         
         // Indicate new, valid data
         return true;

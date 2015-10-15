@@ -3,7 +3,7 @@
 // This file is part of the CX10_fnrf project, released under the 
 // GNU General Public License, see LICENSE.md for further details.
 //
-// Copyright © 	2015 Samuel Powell
+// Copyright ï¿½ 	2015 Samuel Powell
 //				2014 Felix Niessen
 
 
@@ -55,11 +55,14 @@ void I2C_WrReg(uint8_t Reg, uint8_t Val, int16_t *I2C_Errors){
 
 
 // Returns baseline corrected Gyro and Acc readings
-void ReadMPU(float *gyr, float *acc, int16_t *GyroXYZ, int16_t *ACCXYZ, int16_t *angle, int16_t *I2C_Errors, uint16_t *calibGyroDone)
+void ReadMPU(float *gyr, float *acc, int16_t *I2C_Errors, uint16_t *calibGyroDone)
  {
 	static uint8_t i = 0;
 	static int32_t calibGyro[3] = {0,0,0};
     static int32_t calibAcc[3] = {0,0,0};
+    static int16_t GyroXYZ[3] = {0,0,0};
+    static int16_t ACCXYZ[3] = {0,0,0};
+     
 	uint8_t I2C_rec_Buffer[14];
 	
 	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY) == SET);
@@ -121,7 +124,9 @@ void ReadMPU(float *gyr, float *acc, int16_t *GyroXYZ, int16_t *ACCXYZ, int16_t 
 				calibGyro[i]= calibGyro[i]/IMU_CALIB_CYCLES;
                 calibAcc[i] = calibAcc[i]/IMU_CALIB_CYCLES;
 			}
-            calibAcc[2] -= 4096; // Add in gravity.
+            // Add back in gravity (1g) in +ve Z-axis. Calibration is subtracted
+            // so this is entered as a negative value.
+            calibAcc[2] -= 4096;
             
 			GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDon);			
 		}
@@ -130,7 +135,7 @@ void ReadMPU(float *gyr, float *acc, int16_t *GyroXYZ, int16_t *ACCXYZ, int16_t 
 		for(i = 0; i<3;i++){
 			GyroXYZ[i] -= calibGyro[i];
             ACCXYZ[i] -= calibAcc[i];
-            gyr[i] = (float)GyroXYZ[i]*0.0010642252f;       // Range = +/- 2000 dps (16.4 LSBs/DPS)
+            gyr[i] = (float)GyroXYZ[i]*0.0010642252f;      // Range = +/- 2000 dps (16.4 LSBs/DPS)
             acc[i] = (float)ACCXYZ[i]*0.00239502f;         // Range = +/- 8 g (4096 lsb/g)
             
 		}

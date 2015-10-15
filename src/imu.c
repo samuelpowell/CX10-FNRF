@@ -10,13 +10,16 @@
 // under the GPL. Code available in its original form:
 // http://www.x-io.co.uk/open-source-imu-and-ahrs-algorithms/
 
+// Vectoral measurements and angular rates are in the Tait-Bryan
+// or Euler angle sequence (1,2,3)/(x,y,z) form.
+
 #include "imu.h"
 #include <math.h>
 
 // Defines
 #define sampleFreq	512.0f			// sample frequency in Hz
-#define twoKpDef	100.0f*(2.0f * 0.5f)	// 2 * proportional gain
-#define twoKiDef	(2.0f * 0.0f)	// 2 * integral gain
+#define twoKpDef	(2.0f * 1.0f)	// 2 * proportional gain
+#define twoKiDef	(2.0f * 0.1f)	// 2 * integral gain
 
 // Variables
 volatile float twoKp = twoKpDef;											// 2 * proportional gain (Kp)
